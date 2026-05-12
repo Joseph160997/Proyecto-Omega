@@ -1,7 +1,28 @@
 @import "tailwindcss";
 
-:root {
-    --font-sans: 'inter', system-ui, sans-serif;
-
+@theme {
+  --color-primary: var(--brand-color);
+  --color-main-bg: var(--bg-color); /* Corregido de blur-lg a bg-color */
 }
- 
+
+body {
+    background-color: var(--color-main-bg);
+    color: var(--color-primary);
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+:root {
+  --brand-color: #60a5fa; 
+  --bg-color: #0f172a; 
+}
+
+/* Nota: El selector debe coincidir con el string del type */
+[data-theme="Terminal"] {
+  --brand-color: #22c55e;
+  --bg-color: #000000;
+} 
+
+[data-theme="Light"] {
+  --brand-color: #2563eb;
+  --bg-color: #f8fafc;
+}
