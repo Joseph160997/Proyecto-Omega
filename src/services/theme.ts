@@ -46,7 +46,7 @@ export const themeService = {
 
       // Si se hizo click en un botón de tema, aplicamos el tema correspondiente
       if (theme) {
-        this.apply(theme);
+        this.apply(theme); //this se refiere a themeService, por eso es importante usar una función tradicional y no una arrow function, para que el contexto de `this` sea el correcto.
       }
     });
   },

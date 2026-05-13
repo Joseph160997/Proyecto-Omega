@@ -6,7 +6,7 @@
 }
 
 body {
-    background-color: var(--color-main-bg);
+    background-color: var(--color-main-bg); 
     color: var(--color-primary);
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }

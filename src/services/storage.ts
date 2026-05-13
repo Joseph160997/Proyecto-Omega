@@ -7,6 +7,11 @@
  */
 export const storage = {
   save<T>(key: string, data: T): void {
+    if (!key) {
+      throw new Error(
+        "La clave para guardar en localStorage no puede estar vacía.",
+      );
+    }
     try {
       const serialized = JSON.stringify(data);
       localStorage.setItem(key, serialized);
@@ -16,6 +21,11 @@ export const storage = {
   },
 
   get<T>(key: string): T | null {
+    if (!key) {
+      throw new Error(
+        "La clave para recuperar de localStorage no puede estar vacía.",
+      );
+    }
     const raw = localStorage.getItem(key);
     if (raw === null || raw === undefined || raw === "") return null;
     try {

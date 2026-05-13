@@ -4,7 +4,7 @@ import { themeService } from "./services/theme";
 // 1. Iniciamos el tema (esto aplica lo que haya en localStorage)
 themeService.init();
 
-const app = document.querySelector<HTMLDivElement>("#app")!;
+const app = document.querySelector<HTMLElement>("#app")!;
 
 // 2. Inyectamos el HTML
 app.innerHTML = `
