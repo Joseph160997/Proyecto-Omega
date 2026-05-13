@@ -20,11 +20,13 @@ const options = {
  * @throws Un error si la solicitud a la API falla o si ocurre un error durante el proceso de mapeo.
  */
 
-export class CryptoService {
-  async getToCoins(): Promise<CryptoCurrency[]> {
+export const CryptoService = {
+  async getTopCoins(limit: number = 10): Promise<CryptoCurrency[]> {
+    const url = `${API_URL}&per_page=${limit}`;
+
     // Realizamos la solicitud a la API de CoinGecko para obtener las criptomonedas
     try {
-      const response = await fetch(API_URL, options);
+      const response = await fetch(url, options);
 
       // Verificamos si la respuesta es exitosa
       if (!response.ok) {
@@ -44,5 +46,5 @@ export class CryptoService {
       console.error(`Error fetching data from CoinGecko API: ${error}`);
       return [];
     }
-  }
-}
+  },
+};
