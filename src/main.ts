@@ -16,7 +16,7 @@ app.innerHTML = `
   <section class="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-sm">
     <div>
       <h2 class="text-xl font-bold text-slate-200">System Dashboard</h2>
-      <p class="text-xs text-slate-500">Configuración global y estado</p>
+      <p class="text-xs font-bold text-slate-500">Configuración global y estado</p>
     </div>
     
     <div id="theme-buttons-container" class="flex gap-2 mt-4 sm:mt-0">
@@ -33,7 +33,7 @@ app.innerHTML = `
         <span class="text-xs text-slate-500 uppercase tracking-widest font-bold">Top 10 Assets</span>
     </div>
     
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto"> 
         <table class="w-full text-left border-collapse">
           <thead class="bg-white/5 text-slate-400 uppercase text-xs font-semibold">
             <tr>
