@@ -2,7 +2,8 @@ import "./style.css";
 import { themeService } from "./services/theme";
 import { CryptoService } from "./services/crypto.services";
 import { renderCryptoTable } from "./ui/crypto.table";
-
+import { ProductService } from "./services/product.services";
+import { renderProductCard } from "./ui/ProductCard";
 // 1. Iniciamos el sistema base (Theme)
 themeService.init();
 
@@ -53,6 +54,30 @@ app.innerHTML = `
         </table>
     </div>
   </section>
+
+  <!-- MÓDULO B: INVENTARIO (Productos) -->
+    <section>
+      <div class="mb-6 flex justify-between items-end border-l-4 border-amber-500 pl-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-100 uppercase tracking-tighter">System Inventory</h2>
+          <p class="text-sm text-slate-500">Gestión de activos físicos y stock</p>
+        </div>
+        <div class="text-right">
+          <span id="product-count" class="text-xs font-mono text-amber-500 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">0 ITEMS SCANNING</span>
+        </div>
+      </div>
+
+      <!-- Grid de Cards -->
+      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Las Cards se inyectarán aquí -->
+        <div class="col-span-full py-20 text-center text-slate-600 font-mono text-sm uppercase tracking-widest animate-pulse">
+          Synchronizing inventory database...
+        </div>
+      </div>
+    </section>
+
+  </div>
+  
 `;
 
 // 4. Activamos los Listeners de Eventos (Event Delegation)
@@ -80,5 +105,35 @@ const initMarketModule = async () => {
   }
 };
 
+// Funcion para el inventario de productos (Módulo B)
+const initProductModule = async () => {
+  const productGrid = document.getElementById("product-grid")!;
+  const productCount = document.getElementById("product-count")!;
+
+  // Simulamos una llamada a la API con un retraso para mostrar el estado de carga
+  try {
+    //
+    const products = await ProductService.getProducts(10);
+
+    // Inyectamos las cards de productos en el grid
+    productGrid.innerHTML = products.map((p) => renderProductCard(p)).join("");
+
+    // Actualizamos el contador de productos
+    productCount.textContent = `${products.length} ITEMS IN STOCK`;
+  } catch (error) {
+    // Si algo falla, limpiamos el loading y mostramos el error
+    productGrid.innerHTML = `
+      <div class="col-span-full p-12 border border-rose-500/20 bg-rose-500/5 text-center font-bold rounded-xl">
+        <p class="text-rose-400">Error al sincronizar el inventario, Por favor inténtalo de nuevo.</p>
+      </div>
+    `;
+    productCount.textContent = `0 ITEMS SCANNING`;
+  }
+};
+
 // 6. Ejecutamos el módulo
 initMarketModule();
+initProductModule();
+
+// 7. Activamos el modo oscuro por defecto
+//themeService.apply("Terminal");
