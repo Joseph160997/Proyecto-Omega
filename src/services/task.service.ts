@@ -11,6 +11,11 @@ const options = {
   },
 };
 
+/**
+ * Obtiene la lista de tareas desde la API de JSONPlaceholder, mapeando los datos recibidos a objetos de tipo Task utilizando el TaskMapper.
+ * @returns Un array de objetos de tipo Task con los datos de las tareas obtenidos desde la API.
+ * @throws Un error si la solicitud a la API falla o si ocurre un error durante el proceso de mapeo.
+ */
 export const TaskService = {
   async getTasks(limit: number = 10): Promise<Task[]> {
     const url = `${API_URL}?_limit=${limit}`;

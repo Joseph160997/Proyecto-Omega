@@ -12,7 +12,7 @@ export class TaskMapper {
     if (dto.completed) {
       finalStatus = "done";
     } else {
-      //Si es false, usamos un (Math.random) para asignar aleatoriamente "todo" o "in-progress" a las tareas que no están completadas, lo que nos permite simular un estado más dinámico para estas tareas dentro de nuestra aplicación.
+      //Si es false, usamos un (Math.random) para asignar aleatoriamente "todo" o "in-progres" a las tareas que no están completadas, lo que nos permite simular un estado más dinámico para estas tareas dentro de nuestra aplicación.
       finalStatus = Math.random() < 0.5 ? "todo" : "in-progress";
     }
     // 2. RETORNAMOS EL OBJETO DE TIPO Task CON LOS CAMPOS MAPEADOS DESDE EL DTO.
