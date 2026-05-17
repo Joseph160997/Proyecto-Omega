@@ -4,22 +4,25 @@ import { CryptoService } from "./services/crypto.services";
 import { renderCryptoTable } from "./ui/crypto.table";
 import { ProductService } from "./services/product.services";
 import { renderProductCard } from "./ui/ProductCard";
-// 1. Iniciamos el sistema base (Theme)
+
+// ==========================================
+// NUEVAS IMPORTACIONES (MÓDULO KANBAN)
+// ==========================================
+import { TaskService } from "./services/task.service";
+import { renderTaskBoard } from "./ui/TaskBoard";
+
 themeService.init();
 
-// 2. Capturamos el punto de montaje principal
 const app = document.querySelector<HTMLElement>("#app")!;
 
-// 3. Inyectamos la estructura (Layout Composition)
-// Usamos <section> para dividir la vista en bloques lógicos.
+// 1. ESTRUCTURA GLOBAL (Layout de tres niveles)
 app.innerHTML = `
-  <!-- SECCIÓN 1: Controles de Entorno (Theme) -->
+  <!-- SECCIÓN 1: CONTROLES GLOBAL -->
   <section class="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-sm">
     <div>
       <h2 class="text-xl font-bold text-slate-200">System Dashboard</h2>
-      <p class="text-xs font-bold text-slate-500">Configuración global y estado</p>
+      <p class="text-xs text-slate-500">Configuración global y estado</p>
     </div>
-    
     <div id="theme-buttons-container" class="flex gap-2 mt-4 sm:mt-0">
       <button data-set-theme="Dark" class="px-4 py-2 border border-white/10 rounded hover:bg-white/10 cursor-pointer text-sm transition-colors">Dark</button>
       <button data-set-theme="Light" class="px-4 py-2 border border-white/10 rounded hover:bg-white/10 cursor-pointer text-sm transition-colors">Light</button>
@@ -27,35 +30,32 @@ app.innerHTML = `
     </div>
   </section>
 
-  <!-- SECCIÓN 2: Módulo de Mercado (Cripto Monitor) -->
-  <section class="bg-slate-900/50 border border-white/10 rounded-xl shadow-2xl overflow-hidden backdrop-blur-sm">
-    <div class="p-6 border-b border-white/10 flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-blue-400">Market Overview</h2>
-        <span class="text-xs text-slate-500 uppercase tracking-widest font-bold">Top 10 Assets</span>
-    </div>
+  <!-- GRID PRINCIPAL DE MÓDULOS -->
+  <div class="grid grid-cols-1 gap-12">
     
-    <div class="overflow-x-auto"> 
-        <table class="w-full text-left border-collapse">
-          <thead class="bg-white/5 text-slate-400 uppercase text-xs font-semibold">
-            <tr>
-              <th class="px-6 py-4">Asset</th>
-              <th class="px-6 py-4 text-right">Price</th>
-              <th class="px-6 py-4 text-right">24h Change</th>
-            </tr>
-          </thead>
-          <tbody id="crypto-table-body">
-            <!-- Loading State (UX Profesional) -->
-            <tr>
-                <td colspan="3" class="px-6 py-12 text-center">
-                    <p class="text-slate-400 animate-pulse font-mono text-sm">Fetching real-time market data...</p>
-                </td>
-            </tr>
-          </tbody>
-        </table>
-    </div>
-  </section>
+    <!-- MÓDULO A: CRIPTO (Mercado) -->
+    <section class="bg-slate-900/50 border border-white/10 rounded-xl shadow-2xl overflow-hidden backdrop-blur-sm">
+      <div class="p-6 border-b border-white/10 flex justify-between items-center bg-blue-500/5">
+          <h2 class="text-2xl font-bold text-blue-400 tracking-tighter">Market Overview</h2>
+          <span class="text-[10px] text-slate-500 uppercase tracking-widest font-black">Live Data Feed</span>
+      </div>
+      <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-white/5 text-slate-400 uppercase text-xs font-semibold">
+              <tr>
+                <th class="px-6 py-4">Asset</th>
+                <th class="px-6 py-4 text-right">Price</th>
+                <th class="px-6 py-4 text-right">24h Change</th>
+              </tr>
+            </thead>
+            <tbody id="crypto-table-body">
+              <tr><td colspan="3" class="px-6 py-12 text-center text-slate-500 animate-pulse">Initializing market stream...</td></tr>
+            </tbody>
+          </table>
+      </div>
+    </section>
 
-  <!-- MÓDULO B: INVENTARIO (Productos) -->
+    <!-- MÓDULO B: INVENTARIO (Productos) -->
     <section>
       <div class="mb-6 flex justify-between items-end border-l-4 border-amber-500 pl-4">
         <div>
@@ -67,73 +67,88 @@ app.innerHTML = `
         </div>
       </div>
 
-      <!-- Grid de Cards -->
       <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Las Cards se inyectarán aquí -->
         <div class="col-span-full py-20 text-center text-slate-600 font-mono text-sm uppercase tracking-widest animate-pulse">
           Synchronizing inventory database...
         </div>
       </div>
     </section>
 
+    <!-- ==========================================
+    NUEVO MÓDULO C: PRODUCTIVIDAD (Tablero Kanban)
+    ========================================== -->
+    <section class="pt-4 border-t border-white/5">
+      <div class="mb-6 flex justify-between items-end border-l-4 border-emerald-500 pl-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-100 uppercase tracking-tighter">Core Operations</h2>
+          <p class="text-sm text-slate-500">Monitoreo de tareas y despliegues del sistema</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">PROD_ENV ACTIVE</span>
+        </div>
+      </div>
+
+      <!-- Contenedor donde el renderTaskBoard inyectará las 3 columnas -->
+      <div id="kanban-container">
+        <div class="py-12 text-center text-slate-600 font-mono text-sm uppercase tracking-widest animate-pulse">
+          Loading core operational tasks...
+        </div>
+      </div>
+    </section>
+
   </div>
-  
 `;
 
-// 4. Activamos los Listeners de Eventos (Event Delegation)
+// 2. LISTENERS
 themeService.setupEventListeners("theme-buttons-container");
 
-// 5. Función asíncrona de arranque de datos
-const initMarketModule = async () => {
-  try {
-    // Llamamos al servicio (Capa de datos)
-    const data = await CryptoService.getTopCoins(10);
+// 3. LÓGICA DE CARGA (ORQUESTACIÓN)
 
-    // Pasamos los datos limpios a la interfaz (Capa UI)
+// Carga de Mercado (Cripto)
+const loadMarket = async () => {
+  try {
+    const data = await CryptoService.getTopCoins(10);
     renderCryptoTable("crypto-table-body", data);
   } catch (error) {
-    // Si algo falla, limpiamos el loading y mostramos el error
-    const tbody = document.getElementById("crypto-table-body");
-    if (tbody) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="3" class="px-6 py-8 text-center text-red-400 font-mono text-sm border-t border-red-500/30 bg-red-500/5">
-            Error de conexión con la red de datos.
-          </td>
-        </tr>`;
-    }
+    document.getElementById("crypto-table-body")!.innerHTML =
+      `<tr><td colspan="3" class="p-8 text-center text-red-400">Market connection lost.</td></tr>`;
   }
 };
 
-// Funcion para el inventario de productos (Módulo B)
-const initProductModule = async () => {
-  const productGrid = document.getElementById("product-grid")!;
-  const productCount = document.getElementById("product-count")!;
-
-  // Simulamos una llamada a la API con un retraso para mostrar el estado de carga
+// Carga de Inventario (Productos)
+const loadInventory = async () => {
+  const grid = document.getElementById("product-grid")!;
+  const counter = document.getElementById("product-count")!;
   try {
-    //
-    const products = await ProductService.getProducts(10);
-
-    // Inyectamos las cards de productos en el grid
-    productGrid.innerHTML = products.map((p) => renderProductCard(p)).join("");
-
-    // Actualizamos el contador de productos
-    productCount.textContent = `${products.length} ITEMS IN STOCK`;
+    const products = await ProductService.getProducts(8);
+    grid.innerHTML = products.map((p) => renderProductCard(p)).join("");
+    counter.innerText = `${products.length} ITEMS READY`;
   } catch (error) {
-    // Si algo falla, limpiamos el loading y mostramos el error
-    productGrid.innerHTML = `
-      <div class="col-span-full p-12 border border-rose-500/20 bg-rose-500/5 text-center font-bold rounded-xl">
-        <p class="text-rose-400">Error al sincronizar el inventario, Por favor inténtalo de nuevo.</p>
+    grid.innerHTML = `<div class="col-span-full p-12 border border-rose-500/20 bg-rose-500/5 rounded-xl text-center"><p class="text-rose-400 font-mono text-sm">CRITICAL ERROR: Failed to link with Inventory API</p></div>`;
+  }
+};
+
+// ==========================================
+// NUEVA FUNCIÓN: Carga de Kanban (Tareas)
+// ==========================================
+const loadKanban = async () => {
+  const container = document.getElementById("kanban-container")!;
+  try {
+    // Invocamos nuestro servicio solicitando 12 tareas
+    const tasks = await TaskService.getTasks(12);
+
+    // Inyectamos el HTML estructurado pasándole los datos limpios
+    container.innerHTML = renderTaskBoard(tasks);
+  } catch (error) {
+    container.innerHTML = `
+      <div class="p-12 border border-rose-500/20 bg-rose-500/5 rounded-xl text-center">
+        <p class="text-rose-400 font-mono text-sm">SYSTEM FAULT: Operations board offline</p>
       </div>
     `;
-    productCount.textContent = `0 ITEMS SCANNING`;
   }
 };
 
-// 6. Ejecutamos el módulo
-initMarketModule();
-initProductModule();
-
-// 7. Activamos el modo oscuro por defecto
-//themeService.apply("Terminal");
+// DISPARO INICIAL EN PARALELO
+loadMarket();
+loadInventory();
+loadKanban(); // Lanzamos la tercera API
