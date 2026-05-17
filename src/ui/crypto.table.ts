@@ -1,5 +1,5 @@
 import type { CryptoCurrency } from "../interfaces/crypto.interface";
-import { formatCurrency, formatPercentage } from "../utils/formatters";
+import { formatPercentage } from "../utils/formatters";
 
 export const renderCryptoTable = (
   containerId: string,
