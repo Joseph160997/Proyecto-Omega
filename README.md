@@ -54,13 +54,13 @@ La documentación del proyecto se apoya en los comentarios del código fuente y 
 
 ## 🚀 Ejecución
 
-1. Clonar el repositorio: `git clone https://github.com/tu-usuario/proyecto-omega.git`
+1. Clonar el repositorio: `git clone https://github.com/Joseph160997/Proyecto-Omega.git`
 2. Instalar dependencias: `npm install`
 3. Ejecutar en modo desarrollo: `npm run dev`
 
 ## 🛠️ Instalación
 
-1. Clonar el repositorio: `git clone https://github.com/tu-usuario/proyecto-omega.git`
+1. Clonar el repositorio: `git clone https://github.com/Joseph160997/Proyecto-Omega.git`
 2. Instalar dependencias: `npm install`
 
 ## 📝 Configuración
