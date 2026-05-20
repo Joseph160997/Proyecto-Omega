@@ -77,7 +77,7 @@ export const renderTaskBoard = (tasks: Task[]): string => {
       </div>
 
       <!-- COLUMNA: COMPLETADO (DEPLOYED) -->
-      <div class="bg-slate-900/30 border border-white/5 rounded-xl p-4 flex flex-c62.5">
+      <div class="bg-slate-900/30 border border-white/5 rounded-xl p-4 flex flex-col min-h-62.5">
         <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/5">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>

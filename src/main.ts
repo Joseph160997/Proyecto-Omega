@@ -4,7 +4,7 @@ import { CryptoService } from "./services/crypto.services";
 import { renderCryptoTable } from "./ui/crypto.table";
 import { ProductService } from "./services/product.services";
 import { renderProductCard } from "./ui/ProductCard";
-
+import { TaskStorageService } from "./services/task.service";
 // ==========================================
 // NUEVAS IMPORTACIONES (MÓDULO KANBAN)
 // ==========================================
@@ -135,7 +135,7 @@ const loadKanban = async () => {
   const container = document.getElementById("kanban-container")!;
   try {
     // Invocamos nuestro servicio solicitando 12 tareas
-    const tasks = await TaskService.getTasks(12);
+    const tasks = await TaskStorageService.getTasks(12);
 
     // Inyectamos el HTML estructurado pasándole los datos limpios
     container.innerHTML = renderTaskBoard(tasks);

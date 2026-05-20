@@ -1,3 +1,4 @@
+import { storage } from "./storage";
 import type { Task, TaskDTO } from "../interfaces/task.interface";
 import { TaskMapper } from "../mappers/task.mapper";
 
@@ -43,5 +44,29 @@ export const TaskService = {
       console.error(`Error fetching data from JSONPlaceholder API: ${error}`);
       throw error; // Re-lanzamos el error para que pueda ser manejado por la capa superior (UI).
     }
+  },
+};
+
+export const TaskStorageService = {
+  // Clave utilizada para almacenar las tareas en localStorage.
+  STORAGE_KEY: "omega_tasks",
+
+  async getTasks(limit: number = 10): Promise<Task[]> {
+    // Primero intentamos obtener las tareas almacenadas en localStorage utilizando el servicio de almacenamiento.
+    const cachedTasks = storage.get<Task[]>(this.STORAGE_KEY);
+
+    // Si hay tareas almacenadas y el número de tareas es mayor o igual al límite solicitado, las devolvemos.
+    if (cachedTasks && cachedTasks.length > 0) {
+      console.log("Tareas obtenidas de localStorage.");
+      return cachedTasks;
+    }
+
+    // Si no hay tareas almacenadas o el número de tareas es menor que el límite solicitado, obtenemos las tareas de la API.
+    const tasks = await TaskService.getTasks(limit);
+
+    // Almacenamos las tareas obtenidas de la API en localStorage para futuras consultas.
+    storage.save(this.STORAGE_KEY, tasks);
+
+    return tasks;
   },
 };
