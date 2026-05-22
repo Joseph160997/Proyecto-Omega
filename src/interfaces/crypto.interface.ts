@@ -25,4 +25,5 @@ export interface CryptoCurrency {
   price: number;
   image: string;
   change24h: number; // se refiere al cambio de precio en las últimas 24 horas
+  isPositive?: boolean; // propiedad adicional para indicar si el cambio es positivo o negativo, útil para la UI
 }

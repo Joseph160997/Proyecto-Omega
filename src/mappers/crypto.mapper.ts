@@ -21,6 +21,7 @@ export class CryptoMapper {
       price: dto.current_price,
       image: dto.image,
       change24h: dto.price_change_percentage_24h,
+      isPositive: dto.price_change_percentage_24h > 0, // Indicamos si el cambio es positivo o negativo para facilitar la lógica en la UI
     };
   }
 
@@ -30,6 +31,7 @@ export class CryptoMapper {
    * @returns Un array de objetos de tipo CryptoCurrency con los datos mapeados desde los DTOs.
    */
   static toDomainList(dtoList: CoinGeckoDTO[]): CryptoCurrency[] {
+    if (!Array.isArray(dtoList)) return []; // Validación para asegurarnos de que el input es un array
     return dtoList.map((dto) => this.toDomain(dto));
   }
 }

@@ -8,7 +8,7 @@ import { TaskStorageService } from "./services/task.service";
 // ==========================================
 // NUEVAS IMPORTACIONES (MÓDULO KANBAN)
 // ==========================================
-import { TaskService } from "./services/task.service";
+
 import { renderTaskBoard } from "./ui/TaskBoard";
 
 themeService.init();
