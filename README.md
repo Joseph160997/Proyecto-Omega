@@ -9,6 +9,7 @@
 - [📦 Componentes](#componentes)
 - [📝 Documentación](#documentación)
 - [🚀 Ejecución](#ejecución)
+- [🧪 Testing](#testing)
 - [🛠️ Instalación](#instalación)
 - [📝 Configuración](#configuración)
 - [🤝 Colaboración](#colaboración)
@@ -26,6 +27,7 @@ Proyecto Omega es un ecosistema modular construido con Vanilla TypeScript y Tail
 - Fetch API
 - CoinGecko API
 - Fake Store API
+- Vitest (Testing Framework)
 
 ## 🏗️ Arquitectura del Sistema
 
@@ -40,8 +42,10 @@ La arquitectura de Proyecto Omega está pensada para ser modular y fácil de man
 - `themeService`: control de temas y persistencia de configuración.
 - `CryptoService`: servicio responsable de obtener y normalizar los datos de CoinGecko.
 - `ProductService`: servicio de simulación de catálogo que consume Fake Store API.
-- `CryptoMapper` / `ProductMapper`: transformación de DTOs a modelos de dominio.
+- `TaskService`: servicio para gestión de tareas con persistencia.
+- `CryptoMapper` / `ProductMapper` / `TaskMapper`: transformación de DTOs a modelos de dominio.
 - `storage`: abstracción simple sobre `localStorage`.
+- **Tests**: cobertura de pruebas unitarias para mappers (CryptoMapper, ProductMapper, TaskMapper) usando Vitest.
 
 ## 📝 Documentación
 
@@ -54,9 +58,20 @@ La documentación del proyecto se apoya en los comentarios del código fuente y 
 
 ## 🚀 Ejecución
 
-1. Clonar el repositorio: `git clone https://github.com/Joseph160997/Proyecto-Omega.git`
-2. Instalar dependencias: `npm install`
-3. Ejecutar en modo desarrollo: `npm run dev`
+1. Clonar el repositorio: `git clone https://
+2. Compilar para producción: `npm run build`
+
+## 🧪 Testing
+
+El proyecto incluye pruebas unitarias para los mappers principales usando **Vitest**.
+
+- **Ejecutar tests**: `npm run test`
+- **Tests incluidos**:
+  - `src/mappers/crypto.mapper.test.ts`: pruebas para el mapper de criptomonedas
+  - `src/mappers/product.mapper.test.ts`: pruebas para el mapper de productos
+  - `src/mappers/task.mapper.test.ts`: pruebas para el mapper de tareas
+
+Los tests validan la transformación correcta de DTOs a modelos de dominio, asegurando la integridad de los datos en la capa de presentación.github.com/Joseph160997/Proyecto-Omega.git`2. Instalar dependencias:`npm install`3. Ejecutar en modo desarrollo:`npm run dev`
 
 ## 🛠️ Instalación
 
