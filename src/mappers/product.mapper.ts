@@ -18,7 +18,7 @@ export class ProductMapper {
       description: dto.description,
       category: dto.category,
       image: dto.image,
-      rating: dto.rating.rate, // <=== aquí estamos tomando solo el valor de "rate" para simplificar la calificación del producto
+      rating: dto.rating?.rate ?? 0, // <=== aquí estamos tomando solo el valor de "rate" para simplificar la calificación del producto
       stock: Math.floor(Math.random() * 100) + 1, // <=== generamos un número aleatorio entre 1 y 100 para simular el stock de productos
     };
   }
@@ -29,6 +29,7 @@ export class ProductMapper {
    * @returns Un array de objetos de tipo Product con los datos mapeados desde los DTOs.
    */
   static toDomainList(dtoList: ProductDTO[]): Product[] {
+    if (!Array.isArray(dtoList)) return []; // Validación para asegurarnos de que el input es un array
     return dtoList.map((dto) => this.toDomain(dto));
   }
 }
