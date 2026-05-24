@@ -6,32 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Proyecto Omega | Senior Bootcamp</title>
   </head>
-  <body class="flex flex-col min-h-screen  text-slate-100 antialiased">
+  <body class="bg-slate-950 text-slate-100 antialiased">
     
-    <header class="w-full p-6 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50"> 
-      <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold tracking-tighter text-blue-400">
-          PROYECTO <span class="text-white">OMEGA</span>
-        </h1>
-        <nav id="main-nav">
-          <ul class="flex gap-6 text-sm uppercase tracking-wide">
-            <li class="hover:text-blue-400 cursor-pointer transition-colors">Market</li>
-            <li class="hover:text-blue-400 cursor-pointer transition-colors">Inventory</li>
-            <li class="hover:text-blue-400 cursor-pointer transition-colors">Kanban</li>
-          </ul>
-        </nav>
+    <div id="app" class="flex flex-col min-h-screen">
+      <div id="loader" class="flex items-center justify-center h-screen w-full">
+        <p class="text-slate-400 font-mono text-sm uppercase tracking-widest animate-pulse">
+          Initializing Omega Core Systems...
+        </p>
       </div>
-    </header>
-
-    <main id="app" class="flex-1 w-full max-w-7xl mx-auto p-6">
-      <div id="loader" class="flex items-center justify-center h-64">
-        <p class="text-slate-400 animate-pulse">Initializing systems...</p>
-      </div>
-    </main>
-
-    <footer class="w-full p-8 border-t border-slate-800 text-center text-slate-500 text-xs">
-      <p>&copy; 2026 Proyecto Omega - Built with Senior Mindset</p>
-    </footer>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
