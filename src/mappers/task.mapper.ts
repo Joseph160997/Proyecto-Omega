@@ -28,6 +28,7 @@ export class TaskMapper {
    * @returns Un array de objetos de tipo Task con los datos mapeados desde los DTOs.
    */
   static toDomainList(dtoList: TaskDTO[]): Task[] {
+    if (!Array.isArray(dtoList)) return []; // Validación para asegurarnos de que el input es un array
     return dtoList.map((dto) => this.toDomain(dto));
   }
 }
