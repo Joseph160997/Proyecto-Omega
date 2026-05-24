@@ -1,0 +1,19 @@
+{
+  "output": {
+    "filePath": "repomix-output.txt",
+    "style": "plain"
+  },
+  "ignore": {
+    "useGitignore": true,
+    "customPatterns": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      "package-lock.json",
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "README.md",
+      ".vscode/**"
+    ]
+  }
+}
