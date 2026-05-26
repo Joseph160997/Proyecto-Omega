@@ -1,12 +1,12 @@
 import type { ProductDTO, Product } from "../interfaces/product.interface";
 import { ProductMapper } from "../mappers/product.mapper";
 
-const API_URL = "https://fakestoreapi.com/products";
+const API_KEY = import.meta.env.VITE_API_FAKESTORE;
 const options = {
   method: "GET",
   headers: {
     accept: "application/json",
-    // Authorization: `Bearer ${API_KEY}`,
+    Authorization: `Bearer ${API_KEY}`,
   },
 };
 
@@ -17,7 +17,7 @@ const options = {
  */
 export const ProductService = {
   async getProducts(limit: number = 20): Promise<Product[]> {
-    const url = `${API_URL}?limit=${limit}`;
+    const url = `${API_KEY}?limit=${limit}`;
 
     // Realizamos la solicitud a la API de Fake Store para obtener los productos
     try {

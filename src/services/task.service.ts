@@ -2,13 +2,13 @@ import { storage } from "./storage";
 import type { Task, TaskDTO } from "../interfaces/task.interface";
 import { TaskMapper } from "../mappers/task.mapper";
 
-const API_URL = "https://jsonplaceholder.typicode.com/todos";
+const API_KEY = import.meta.env.VITE_API_TASKS;
 const options = {
   method: "GET",
   headers: {
     accept: "application/json",
     contentType: "application/json",
-    // Authorization: `Bearer ${API_KEY}`,
+    Authorization: `Bearer ${API_KEY}`,
   },
 };
 
@@ -19,7 +19,7 @@ const options = {
  */
 export const TaskService = {
   async getTasks(limit: number = 10): Promise<Task[]> {
-    const url = `${API_URL}?_limit=${limit}`;
+    const url = `${API_KEY}?_limit=${limit}`;
 
     // Realizamos la peticion a la API de JSONPlaceholder para obtener las tareas.
     try {

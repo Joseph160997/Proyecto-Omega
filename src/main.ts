@@ -6,6 +6,7 @@ import { ProductService } from "./services/product.services";
 import { renderProductCard } from "./ui/ProductCard";
 import { TaskStorageService } from "./services/task.service";
 import { renderTaskBoard } from "./ui/TaskBoard";
+import { ToastService } from "./ui/Toast";
 
 // NUEVOS IMPORTES COMPONENTIZADOS
 import { renderLayout } from "./ui/Layout";
@@ -37,6 +38,8 @@ const loadMarket = async (): Promise<void> => {
   } catch (error) {
     document.getElementById("crypto-table-body")!.innerHTML =
       `<tr><td colspan="3" class="p-8 text-center text-red-400">Market connection lost.</td></tr>`;
+
+    ToastService.show("Fallo en la conexión con el mercado.", 5000);
   }
 };
 
@@ -53,6 +56,8 @@ const loadInventory = async (): Promise<void> => {
       <div class="col-span-full p-12 border border-rose-500/20 bg-rose-500/5 rounded-xl text-center">
         <p class="text-rose-400 font-mono text-sm">CRITICAL ERROR: Failed to link with Inventory API</p>
       </div>`;
+
+    ToastService.show("Imposible sincronizar con la base de datos.", 5000);
   }
 };
 
@@ -67,6 +72,8 @@ const loadKanban = async (): Promise<void> => {
       <div class="p-12 border border-rose-500/20 bg-rose-500/5 rounded-xl text-center">
         <p class="text-rose-400 font-mono text-sm">SYSTEM FAULT: Operations board offline</p>
       </div>`;
+
+    ToastService.show("Servicio de operaciones desactivado.", 5000);
   }
 };
 

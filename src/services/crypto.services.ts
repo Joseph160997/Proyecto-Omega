@@ -4,13 +4,12 @@ import type {
 } from "../interfaces/crypto.interface";
 import { CryptoMapper } from "../mappers/crypto.mapper";
 
-const API_URL =
-  "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1";
+const API_KEY = import.meta.env.VITE_API_COINGECKO;
 const options = {
   method: "GET",
   headers: {
     accept: "application/json",
-    // Authorization: `Bearer ${API_KEY}`,
+    Authorization: `Bearer ${API_KEY}`,
   },
 };
 
@@ -22,7 +21,7 @@ const options = {
 
 export const CryptoService = {
   async getTopCoins(limit: number = 10): Promise<CryptoCurrency[]> {
-    const url = `${API_URL}&per_page=${limit}`;
+    const url = `${API_KEY}&per_page=${limit}`;
 
     // Realizamos la solicitud a la API de CoinGecko para obtener las criptomonedas
     try {
@@ -44,7 +43,7 @@ export const CryptoService = {
       // Manejamos cualquier error que pueda ocurrir durante la solicitud o el mapeo
     } catch (error) {
       console.error(`Error fetching data from CoinGecko API: ${error}`);
-      return [];
+      throw error; // Re-lanzamos el error para que pueda ser manejado por la capa superior (UI)
     }
   },
 };

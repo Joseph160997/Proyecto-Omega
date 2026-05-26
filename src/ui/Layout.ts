@@ -13,9 +13,9 @@ export const renderLayout = (): string => {
         </h1>
         <nav id="main-nav">
           <ul class="flex gap-6 text-sm uppercase tracking-wide">
-            <li class="hover:text-blue-400 cursor-pointer transition-colors">Market</li>
-            <li class="hover:text-blue-400 cursor-pointer transition-colors">Inventory</li>
-            <li class="hover:text-blue-400 cursor-pointer transition-colors">Kanban</li>
+            <li class="hover:text-amber-800 cursor-pointer transition-colors">Market</li>
+            <li class="hover:text-green-400 cursor-pointer transition-colors">Inventory</li>
+            <li class="hover:text-yellow-400 cursor-pointer transition-colors">Kanban</li>
           </ul>
         </nav>
       </div>
