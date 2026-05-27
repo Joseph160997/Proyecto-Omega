@@ -42,7 +42,7 @@ export const themeService = {
 
       // Verificamos si el elemento clickeado tiene el atributo data-set-theme, que es el que usamos para identificar los botones de tema.
       if (!target.hasAttribute("data-set-theme")) return;
-      const theme = target.dataset.setTheme as ThemeMode | undefined;
+      const theme = target.dataset.setTheme as ThemeMode | undefined; // dataset
 
       // Si se hizo click en un botón de tema, aplicamos el tema correspondiente
       if (theme) {
