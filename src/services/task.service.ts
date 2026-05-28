@@ -47,13 +47,17 @@ export const TaskService = {
   },
 };
 
+/**
+ * Obtiene la lista de tareas desde la API de JSONPlaceholder o desde localStorage, dependiendo de si hay tareas almacenadas en localStorage.
+ * @returns Un array de objetos de tipo Task con los datos de las tareas obtenidos desde la API o desde localStorage.
+ */
 export const TaskStorageService = {
   // Clave utilizada para almacenar las tareas en localStorage.
   STORAGE_KEY: "omega_tasks",
 
   async getTasks(limit: number = 10): Promise<Task[]> {
     // Primero intentamos obtener las tareas almacenadas en localStorage utilizando el servicio de almacenamiento.
-    const cachedTasks = storage.get<Task[]>(this.STORAGE_KEY);
+    const cachedTasks = await storage.get<Task[]>(this.STORAGE_KEY);
 
     // Si hay tareas almacenadas y el número de tareas es mayor o igual al límite solicitado, las devolvemos.
     if (cachedTasks && cachedTasks.length > 0) {
@@ -62,7 +66,7 @@ export const TaskStorageService = {
     }
 
     // Si no hay tareas almacenadas o el número de tareas es menor que el límite solicitado, obtenemos las tareas de la API.
-    const tasks = await TaskService.getTasks(limit);
+    const tasks = TaskService.getTasks(limit);
 
     // Almacenamos las tareas obtenidas de la API en localStorage para futuras consultas.
     storage.save(this.STORAGE_KEY, tasks);

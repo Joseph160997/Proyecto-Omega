@@ -17,8 +17,19 @@ import {
   renderMarketView,
 } from "./ui/views";
 
-// 1. INICIALIZAR CONFIGURACIONES DE ENTORNO GLOBAL
-themeService.init();
+// 1. INICIALIZAR CONFIGURACIONES DE ENTORNO GLOBAL.
+(async () => {
+  try {
+    // 1. Esperamos a que el tema se recupere de IndexedDB y se aplique al DOM
+    // antes de pintar cualquier componente visual. Evita el molesto "parpadeo blanco".
+    await themeService.init();
+
+    // 2. Inicializas el resto de la app (Router, Eventos, etc.)
+    // app.init();
+  } catch (error) {
+    console.error("Error durante la inicialización de la aplicación:", error);
+  }
+})();
 
 // 2. CAPTURAR EL NODO RAÍZ DEL DOM E INYECTAR EL LAYOUT BASE
 const app = document.querySelector<HTMLElement>("#app")!;
