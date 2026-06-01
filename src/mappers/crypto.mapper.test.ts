@@ -69,9 +69,24 @@ describe("CryptoMapper Test Suite", () => {
   });
 
   it("should return an empty array when toDomainList is called with an empty array input", () => {
-    // SCENARIO 5: Empty Input for toDomainList
-    const result = CryptoMapper.toDomainList([]); // Pasamos un array vacío para probar la validación
+    const result = CryptoMapper.toDomainList([]);
+    expect(result).toEqual([]);
+  });
 
-    expect(result).toEqual([]); // Verificamos que el resultado sea un array vacío
+  it("should work when toDomainList is passed as a detached callback (fetchWithCache pattern)", () => {
+    const mockDTO: CoinGeckoDTO = {
+      id: "bitcoin",
+      symbol: "btc",
+      name: "Bitcoin",
+      current_price: 65000,
+      image: "https://url.com/btc.png",
+      price_change_percentage_24h: 5.4,
+    };
+
+    const mapperFn = CryptoMapper.toDomainList;
+    const result = mapperFn([mockDTO]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].symbol).toBe("BTC");
   });
 });

@@ -30,6 +30,6 @@ export class ProductMapper {
    */
   static toDomainList(dtoList: ProductDTO[]): Product[] {
     if (!Array.isArray(dtoList)) return []; // Validación para asegurarnos de que el input es un array
-    return dtoList.map((dto) => this.toDomain(dto));
+    return dtoList.map((dto) => ProductMapper.toDomain(dto));
   }
 }

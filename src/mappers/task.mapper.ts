@@ -29,6 +29,6 @@ export class TaskMapper {
    */
   static toDomainList(dtoList: TaskDTO[]): Task[] {
     if (!Array.isArray(dtoList)) return []; // Validación para asegurarnos de que el input es un array
-    return dtoList.map((dto) => this.toDomain(dto));
+    return dtoList.map((dto) => TaskMapper.toDomain(dto));
   }
 }

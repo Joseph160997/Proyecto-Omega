@@ -31,7 +31,7 @@ export const renderLayout = (): string => {
         <div id="theme-buttons-container" class="flex gap-2 mt-4 sm:mt-0"></div>
       </section>
 
-      <div id="content-view"class="grid grid-cols-1 gap-12">
+      <div id="content-view" class="grid grid-cols-1 gap-12">
         
        
 
