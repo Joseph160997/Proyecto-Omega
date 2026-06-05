@@ -15,13 +15,15 @@ import {
   renderKanbanView,
   renderMarketView,
 } from "./ui/views";
+import { setupMarketSearch } from "./ui/market.events";
 
 const loadMarket = async (): Promise<void> => {
   const view = document.getElementById("content-view")!;
   view.innerHTML = renderMarketView();
   try {
-    const data = await CryptoService.getTopCoins(10);
-    renderCryptoTable("crypto-table-body", data);
+    const allCoins = await CryptoService.getTopCoins(25);
+    renderCryptoTable("crypto-table-body", allCoins);
+    setupMarketSearch(allCoins);
   } catch (error) {
     console.error("[Omega] Market:", error);
     document.getElementById("crypto-table-body")!.innerHTML =

@@ -1,9 +1,13 @@
 export const renderMarketView = (): string => {
   return `
 <section class="bg-slate-900/50 border border-white/10 rounded-xl shadow-2xl overflow-hidden backdrop-blur-sm">
+         
           <div class="p-6 border-b border-white/10 flex justify-between items-center bg-blue-500/5">
               <h2 class="text-2xl font-bold text-blue-400 tracking-tighter">Market Overview</h2>
               <span class="text-[10px] text-slate-500 uppercase tracking-widest font-black">Live Data Feed</span>
+          </div>
+           <div class="mb-6">
+           <input type="text" id="crypto-search" placeholder="Search by name or symbol..." class="w-full bg-slate-800 text-slate-200 placeholder-slate-500 border border-slate-700 rounded-xl px-4 font-bold py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transtition-colors duration-200"/>
           </div>
           <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
