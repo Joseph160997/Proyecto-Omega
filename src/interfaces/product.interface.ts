@@ -28,3 +28,18 @@ export interface Product {
   rating: number; // <=== es un objeto que contiene "rate" y "count", pero para simplificarlo lo dejamos como un número que representa la calificación promedio del producto
   stock: number; // <=== "OJO" este campo no existe en la API, lo agregamos para simular el stock de productos
 }
+
+// Define las opciones exactas que permitiremos
+export type SortOrder = "asc" | "desc" | "none";
+export type ProductCategory =
+  | "all"
+  | "electronics"
+  | "jewelery"
+  | "men's clothing"
+  | "women's clothing";
+
+// El contrato de nuestro estado
+export interface InventoryFilterState {
+  category: ProductCategory;
+  priceOrder: SortOrder;
+}
