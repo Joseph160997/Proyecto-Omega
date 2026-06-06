@@ -16,6 +16,7 @@ import {
   renderMarketView,
 } from "./ui/views";
 import { setupMarketSearch } from "./ui/market.events";
+import { setupInventorySorting } from "./ui/inventory.events";
 
 const loadMarket = async (): Promise<void> => {
   const view = document.getElementById("content-view")!;
@@ -39,7 +40,8 @@ const loadInventory = async (): Promise<void> => {
   const grid = document.getElementById("product-grid")!;
   const counter = document.getElementById("product-count")!;
   try {
-    const products = await ProductService.getProducts(8);
+    const products = await ProductService.getProducts(25);
+    setupInventorySorting(products);
     grid.innerHTML = products.map((p) => renderProductCard(p)).join("");
     counter.innerText = `${products.length} ITEMS READY`;
   } catch (error) {

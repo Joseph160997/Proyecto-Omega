@@ -1,6 +1,12 @@
 import type { CryptoCurrency } from "../interfaces/crypto.interface";
 import { formatCurrency, formatPercentage } from "../utils/formatters";
 
+/**
+ * Renderiza la tabla de criptomonedas en el contenedor especificado.
+ * @param containerId ID del elemento donde se insertará la tabla.
+ * @param cryptos Lista de criptomonedas a mostrar en la tabla.
+ * @returns void
+ */
 export const renderCryptoTable = (
   containerId: string,
   cryptos: CryptoCurrency[],

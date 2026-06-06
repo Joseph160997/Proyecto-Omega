@@ -30,10 +30,14 @@ export const renderMarketView = (): string => {
 export const renderInventoryView = (): string => {
   return `
     <section>
+    
           <div class="mb-6 flex justify-between items-end border-l-4 border-amber-500 pl-4">
             <div>
               <h2 class="text-2xl font-bold text-slate-100 uppercase tracking-tighter">System Inventory</h2>
               <p class="text-sm text-slate-500">Gestión de activos físicos y stock</p>
+              <div class="mt-2">
+                <button id="sort-price-btn" class="px-4 py-2 text-sm font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded hover:bg-amber-500/20 transition-colors cursor-pointer duration-200">Sort by Price</button>
+              </div> 
             </div>
             <div class="text-right">
               <span id="product-count" class="text-xs font-mono text-amber-500 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">0 ITEMS SCANNING</span>
