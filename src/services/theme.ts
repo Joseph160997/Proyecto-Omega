@@ -8,7 +8,7 @@ export const themeService = {
    */
   async init(): Promise<void> {
     // 1. Ponemos el 'await' para pausar la ejecución hasta que IndexedDB responda.
-    const savedTheme = (await storage.get<ThemeMode>("theme")) ?? "Dark";
+    const savedTheme = (await storage.get<ThemeMode>("theme")) ?? "DeepSpace";
 
     // 2. Aplicamos el tema recuperado.
     // Como apply ahora es async, usamos await para asegurar el guardado.

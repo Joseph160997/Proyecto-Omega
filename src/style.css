@@ -2,27 +2,49 @@
 
 @theme {
   --color-primary: var(--brand-color);
-  --color-main-bg: var(--bg-color); /* Corregido de blur-lg a bg-color */
+  --color-main-bg: var(--bg-color);
+  --color-panel-bg: var(--panel-bg);
+  --color-panel-border: var(--panel-border);
+  --color-glow: var(--glow-color);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
 }
 
 body {
     background-color: var(--color-main-bg); 
-    color: var(--color-primary);
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    color: var(--color-text-primary);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :root {
-  --brand-color: #60a5fa; 
-  --bg-color: #0f172a; 
+  /* DeepSpace Pro Theme (Default) */
+  --brand-color: #06b6d4;
+  --bg-color: #0f172a;
+  --panel-bg: rgba(30, 41, 59, 0.7);
+  --panel-border: rgba(6, 182, 212, 0.3);
+  --glow-color: rgba(6, 182, 212, 0.5);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
 }
 
-/* Nota: El selector debe coincidir con el string del type */
-[data-theme="Terminal"] {
-  --brand-color: #22c55e;
-  --bg-color: #000000;
-} 
+/* DeepSpace Pro Theme */
+[data-theme="DeepSpace"] {
+  --brand-color: #06b6d4;
+  --bg-color: #0f172a;
+  --panel-bg: rgba(30, 41, 59, 0.7);
+  --panel-border: rgba(6, 182, 212, 0.3);
+  --glow-color: rgba(6, 182, 212, 0.5);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+}
 
-[data-theme="Light"] {
-  --brand-color: #2563eb;
-  --bg-color: #f8fafc;
+/* Neon Cyber Theme */
+[data-theme="NeonCyber"] {
+  --brand-color: #10b981;
+  --bg-color: #111111;
+  --panel-bg: rgba(17, 17, 17, 0.85);
+  --panel-border: rgba(16, 185, 129, 0.6);
+  --glow-color: rgba(16, 185, 129, 0.4);
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
 }
