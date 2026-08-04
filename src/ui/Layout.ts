@@ -6,16 +6,16 @@
  */
 export const renderLayout = (): string => {
   return `
-    <header class="w-full p-6 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50"> 
+    <header class="w-full p-6 border-b border-[var(--panel-border)] bg-[var(--panel-bg)] backdrop-blur-md sticky top-0 z-50 shadow-lg"> 
       <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold tracking-tighter text-blue-400">
-          PROYECTO <span class="text-white">OMEGA</span>
+        <h1 class="text-2xl font-bold tracking-tighter text-[var(--brand-color)] drop-shadow-[0_0_8px_var(--glow-color)]">
+          PROYECTO <span class="text-[var(--text-primary)]">OMEGA</span>
         </h1>
         <nav id="main-nav">
           <ul class="flex gap-6 text-sm uppercase tracking-wide">
-            <li data-page="market" class="text-slate-400 pb-1 cursor-pointer">Market</li>
-            <li data-page="inventory" class="text-slate-400 pb-1 cursor-pointer">Inventory</li>
-            <li data-page="kanban" class="text-slate-400 pb-1 cursor-pointer">Kanban</li>
+            <li data-page="market" class="text-[var(--text-secondary)] hover:text-[var(--brand-color)] pb-1 cursor-pointer transition-colors duration-300">Market</li>
+            <li data-page="inventory" class="text-[var(--text-secondary)] hover:text-[var(--brand-color)] pb-1 cursor-pointer transition-colors duration-300">Inventory</li>
+            <li data-page="kanban" class="text-[var(--text-secondary)] hover:text-[var(--brand-color)] pb-1 cursor-pointer transition-colors duration-300">Kanban</li>
           </ul>
         </nav>
       </div>
@@ -23,10 +23,10 @@ export const renderLayout = (): string => {
 
     <main class="flex-1 w-full max-w-7xl mx-auto p-6">
       
-      <section class="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-sm">
+      <section class="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center bg-[var(--panel-bg)] p-4 rounded-xl border border-[var(--panel-border)] shadow-lg backdrop-blur-sm">
         <div>
-          <h2 class="text-xl font-bold text-slate-200">System Dashboard</h2>
-          <p class="text-xs text-slate-500">Configuración global y estado</p>
+          <h2 class="text-xl font-bold text-[var(--text-primary)]">System Dashboard</h2>
+          <p class="text-xs text-[var(--text-secondary)]">Configuración global y estado</p>
         </div>
         <div id="theme-buttons-container" class="flex gap-2 mt-4 sm:mt-0"></div>
       </section>
@@ -38,7 +38,7 @@ export const renderLayout = (): string => {
       </div>
     </main>
 
-    <footer class="w-full p-8 border-t border-slate-800 text-center text-slate-500 text-xs">
+    <footer class="w-full p-8 border-t border-[var(--panel-border)] text-center text-[var(--text-secondary)] text-xs">
       <p>&copy; 2026 Proyecto Omega - Built with Senior Mindset</p>
     </footer>
   `;

@@ -1,1 +1,1 @@
-export type ThemeMode = "Dark" | "Light" | "Terminal";
+export type ThemeMode = "DeepSpace" | "NeonCyber";
