@@ -10,11 +10,11 @@ export const ToastService = {
     const toast = document.createElement("div");
 
     // Asignar clases CSS para el estilo del Toast.
-    toast.className = `fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-rose-950/90 border border-rose-500/30 p-4 rounded-xl shadow-2xl backdrop-blur-md text-xs font-mono text-rose font-semibold tracking-wide anime-bouncetransition-all duration-300 ease-in-out`;
+    toast.className = `fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-rose-950/90 border border-rose-500/30 p-4 rounded-xl shadow-2xl backdrop-blur-md text-xs font-mono text-rose font-semibold tracking-wide anime-bounce transition-all duration-300 ease-in-out`;
 
     // Inyectar el marcado con un icono indicativo de fallo de sistema y el mensaje de error.
     toast.innerHTML = `
-       <span class="flax h- w- rounded-full bg-rose-500 animate-ping"></span>
+       <span class="flex h-2 w-2 rounded-full bg-rose-500 animate-ping"></span>
        <span>[SYSTEM ERROR]: ${message}</span>
     `;
 
