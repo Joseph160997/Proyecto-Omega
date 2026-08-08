@@ -19,7 +19,7 @@ const renderTaskCard = (task: Task): string => {
         <span class="text-[9px] font-mono px-1.5 py-0.5 rounded border ${badgeColors[task.status]} tracking-tighter">
           TSK-${task.id.toString().padStart(3, "0")}
         </span>
-        <button class="text-[var(--text-secondary)] hover:text-[var(--brand-color)] text-xs transition-all cursor-pointer opacity-0 group-hover/card:opacity-100 hover:scale-110">
+        <button class="text-[var(--text-secondary)] hover:text-[var(--brand-color)] text-xs transition-all cursor-pointer opacity-0 group-hover/card:opacity-100 hover:scale-110" aria-label="Configurar tarea">
           ⚙️
         </button>
       </div>
