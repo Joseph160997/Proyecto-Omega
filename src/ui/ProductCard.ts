@@ -43,6 +43,7 @@ export const renderProductCard = (product: Product): string => {
             </div>
             
             <button 
+              data-add-cart="${product.id}"
               aria-label="Añadir al carrito"
               class="bg-[var(--brand-color)] hover:brightness-110 text-[var(--bg-color)] p-2 rounded-lg transition-all cursor-pointer group/btn shadow-[0_0_10px_var(--glow-color)] hover:shadow-[0_0_15px_var(--glow-color)]"
             >
