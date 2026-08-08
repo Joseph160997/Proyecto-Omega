@@ -10,11 +10,16 @@ const DB_NAME = "OmegaDB";
 // Versión estructural de la base de datos.
 // Si en el futuro necesitas crear más "tablas" (stores), debes subir este
 // número a 2 para que se vuelva a ejecutar el evento 'onupgradeneeded'.
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 // Nombre de nuestra "tabla" principal (Object Store).
 // Aquí guardaremos todo usando el patrón clave-valor.
 const STORE_NAME = "keyval";
+
+// Nombres de stores adicionales para series temporales y carritos
+const HISTORY_STORE = "history";
+const CART_STORE = "cart";
+const TASKS_STORE = "tasks";
 
 // 2. PATRÓN SINGLETON (CACHÉ DE MEMORIA)
 // -------------------------------------------------------------------------
@@ -50,6 +55,19 @@ const openDatabase = (): Promise<IDBDatabase> => {
       // Si no existe, la creamos en este preciso momento.
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME);
+      }
+      
+      // Crear stores adicionales si no existen
+      if (!db.objectStoreNames.contains(HISTORY_STORE)) {
+        db.createObjectStore(HISTORY_STORE);
+      }
+      
+      if (!db.objectStoreNames.contains(CART_STORE)) {
+        db.createObjectStore(CART_STORE);
+      }
+      
+      if (!db.objectStoreNames.contains(TASKS_STORE)) {
+        db.createObjectStore(TASKS_STORE);
       }
     };
 
@@ -120,6 +138,15 @@ const transactionComplete = (transaction: IDBTransaction): Promise<void> => {
 
 // 4. EL OBJETO DE SERVICIO EXPORTADO (CRUD INTERFACE)
 // -------------------------------------------------------------------------
+
+/**
+ * Interfaz para datos con timestamp (para caché e historial)
+ */
+export interface TimestampedData<T> {
+  data: T;
+  timestamp: number;
+}
+
 export const storage = {
   /**
    * CREATE / UPDATE (Guardar o Actualizar)
@@ -143,6 +170,25 @@ export const storage = {
 
     // 5. Esperamos a que la transacción finalice en el disco.
     return transactionComplete(transaction);
+  },
+
+  /**
+   * SAVE con timestamp (para caché con información de frescura)
+   */
+  async saveWithTimestamp<T>(key: string, data: T): Promise<void> {
+    const timestamped: TimestampedData<T> = {
+      data,
+      timestamp: Date.now(),
+    };
+    return this.save(key, timestamped);
+  },
+
+  /**
+   * GET con timestamp (devuelve null si no hay timestamp)
+   */
+  async getWithTimestamp<T>(key: string): Promise<TimestampedData<T> | null> {
+    const result = await this.get<TimestampedData<T>>(key);
+    return result && result.timestamp ? result : null;
   },
 
   /**
@@ -201,5 +247,117 @@ export const storage = {
     store.clear();
 
     return transactionComplete(transaction);
+  },
+
+  /**
+   * HISTORIAL: Agrega un snapshot a una serie temporal
+   * Útil para guardar evolución de precios de cripto u otros datos históricos
+   */
+  async addToHistory<T>(category: string, data: T, maxEntries = 10): Promise<void> {
+    const historyKey = `history:${category}`;
+    const existing = await this.get<T[]>(historyKey);
+    const history = existing || [];
+    
+    // Agregar nuevo dato al inicio
+    history.unshift(data);
+    
+    // Mantener solo los últimos maxEntries
+    if (history.length > maxEntries) {
+      history.splice(maxEntries);
+    }
+    
+    await this.save(historyKey, history);
+  },
+
+  /**
+   * HISTORIAL: Obtiene la serie temporal completa
+   */
+  async getHistory<T>(category: string): Promise<T[]> {
+    const historyKey = `history:${category}`;
+    return (await this.get<T[]>(historyKey)) || [];
+  },
+
+  /**
+   * CARRITO: Agrega un producto al carrito
+   */
+  async addToCart(product: { id: number; title: string; price: number; quantity: number }): Promise<void> {
+    const cart = await this.getCart();
+    const existingItem = cart.find(item => item.id === product.id);
+    
+    if (existingItem) {
+      existingItem.quantity += product.quantity;
+    } else {
+      cart.push(product);
+    }
+    
+    await this.save(CART_STORE, cart);
+  },
+
+  /**
+   * CARRITO: Obtiene todos los items del carrito
+   */
+  async getCart(): Promise<Array<{ id: number; title: string; price: number; quantity: number }>> {
+    return (await this.get<Array<{ id: number; title: string; price: number; quantity: number }>>(CART_STORE)) || [];
+  },
+
+  /**
+   * CARRITO: Remueve un item del carrito
+   */
+  async removeFromCart(productId: number): Promise<void> {
+    const cart = await this.getCart();
+    const filtered = cart.filter(item => item.id !== productId);
+    await this.save(CART_STORE, filtered);
+  },
+
+  /**
+   * CARRITO: Limpia todo el carrito
+   */
+  async clearCart(): Promise<void> {
+    await this.save(CART_STORE, []);
+  },
+
+  /**
+   * CARRITO: Obtiene el total de items en el carrito
+   */
+  async getCartCount(): Promise<number> {
+    const cart = await this.getCart();
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  },
+
+  /**
+   * TAREAS: Guarda el estado de una tarea (para persistir cambios de drag & drop)
+   */
+  async saveTaskStatus(taskId: number, status: string): Promise<void> {
+    const taskKey = `task:${taskId}`;
+    await this.save(taskKey, status);
+  },
+
+  /**
+   * TAREAS: Obtiene el estado guardado de una tarea
+   */
+  async getTaskStatus(taskId: number): Promise<string | null> {
+    return await this.get<string>(`task:${taskId}`);
+  },
+
+  /**
+   * TAREAS: Obtiene todos los estados de tareas guardados
+   */
+  async getAllTaskStatuses(): Promise<Record<number, string>> {
+    const db = await openDatabase();
+    const transaction = db.transaction(TASKS_STORE, "readonly");
+    const store = transaction.objectStore(TASKS_STORE);
+    const request = store.getAll();
+    
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => {
+        const results = request.result as Array<{ key: number; value: string }>;
+        const statuses: Record<number, string> = {};
+        results.forEach(item => {
+          statuses[item.key] = item.value;
+        });
+        resolve(statuses);
+      };
+      request.onerror = () => reject(request.error ?? new Error("Failed to get task statuses"));
+    });
   },
 };

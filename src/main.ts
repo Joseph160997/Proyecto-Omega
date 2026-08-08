@@ -17,6 +17,7 @@ import {
 } from "./ui/views";
 import { setupMarketSearch } from "./ui/market.events";
 import { setupInventorySorting } from "./ui/inventory.events";
+import { setupCartEvents } from "./ui/cart.events";
 
 const loadMarket = async (): Promise<void> => {
   const view = document.getElementById("content-view")!;
@@ -137,6 +138,9 @@ async function bootstrap(): Promise<void> {
     themeService.setupEventListeners("theme-buttons-container");
 
     setupNavigation();
+    
+    // Inicializar carrito
+    await setupCartEvents();
 
     const marketTab = document.querySelector<HTMLElement>(
       '#main-nav li[data-page="market"]',
