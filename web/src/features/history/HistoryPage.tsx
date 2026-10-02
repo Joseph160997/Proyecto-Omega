@@ -4,10 +4,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 export function HistoryPage() {
   return (
     <section className="space-y-6">
-      <PageHeader
-        title="History"
-        description="Historial de operaciones simuladas."
-      />
+      <PageHeader title="History" description="Historial de operaciones simuladas." />
 
       <EmptyState
         title="History en construcción"

@@ -1,6 +1,6 @@
 import { CandlestickChart, Command, Moon, Sun } from 'lucide-react'
 
-import { useThemeStore } from '@/stores/theme.store'
+import { useThemeStore } from '@/app/container'
 
 export function Topbar() {
   const mode = useThemeStore((state) => state.mode)
@@ -14,12 +14,8 @@ export function Topbar() {
         </span>
 
         <div>
-          <p className="text-sm font-semibold text-(--text-primary)">
-            Omega Markets
-          </p>
-          <p className="text-xs text-(--text-secondary)">
-            Terminal financiera simulada
-          </p>
+          <p className="text-sm font-semibold text-(--text-primary)">Omega Markets</p>
+          <p className="text-xs text-(--text-secondary)">Terminal financiera simulada</p>
         </div>
       </div>
 
@@ -31,19 +27,13 @@ export function Topbar() {
         >
           <Command size={14} aria-hidden="true" />
           Command palette
-          <kbd className="rounded bg-(--bg) px-1 py-0.5 text-[10px]">
-            Ctrl K
-          </kbd>
+          <kbd className="rounded bg-(--bg) px-1 py-0.5 text-[10px]">Ctrl K</kbd>
         </button>
 
         <button
           type="button"
           onClick={toggle}
-          aria-label={
-            mode === 'dark'
-              ? 'Activar modo claro'
-              : 'Activar modo oscuro'
-          }
+          aria-label={mode === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
           className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border) text-(--text-secondary) transition-colors hover:text-(--text-primary)"
         >
           {mode === 'dark' ? (

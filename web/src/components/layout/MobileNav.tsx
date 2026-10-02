@@ -5,10 +5,7 @@ import { navItems } from '@/components/layout/nav-items'
 export function MobileNav() {
   return (
     <div className="border-b border-(--border) bg-(--surface) lg:hidden">
-      <nav
-        aria-label="Navegación móvil"
-        className="flex gap-1 overflow-x-auto px-4 py-2"
-      >
+      <nav aria-label="Navegación móvil" className="flex gap-1 overflow-x-auto px-4 py-2">
         {navItems.map(({ icon: Icon, ...item }) => (
           <NavLink
             key={item.to}

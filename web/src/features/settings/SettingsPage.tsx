@@ -1,7 +1,7 @@
 import { PageHeader } from '@/components/layout/PageHeader'
-import { useThemeStore } from '@/stores/theme.store'
+import { useThemeStore } from '@/app/container'
 
-import type { ThemeMode } from '@/stores/theme.store'
+import type { ThemeMode } from '@/domain/settings/theme'
 
 const themeOptions: Array<{
   value: ThemeMode
@@ -26,15 +26,10 @@ export function SettingsPage() {
 
   return (
     <section className="space-y-6">
-      <PageHeader
-        title="Settings"
-        description="Preferencias visuales y de simulación."
-      />
+      <PageHeader title="Settings" description="Preferencias visuales y de simulación." />
 
       <div className="rounded-2xl border border-(--border) bg-(--surface) p-6">
-        <h2 className="text-sm font-medium text-(--text-primary)">
-          Tema
-        </h2>
+        <h2 className="text-sm font-medium text-(--text-primary)">Tema</h2>
 
         <p className="mt-1 text-sm text-(--text-secondary)">
           Selecciona el modo visual de Omega Markets.
@@ -54,9 +49,7 @@ export function SettingsPage() {
                   : 'border-(--border) text-(--text-secondary) hover:text-(--text-primary)',
               ].join(' ')}
             >
-              <span className="block text-sm font-medium">
-                {option.label}
-              </span>
+              <span className="block text-sm font-medium">{option.label}</span>
 
               <span className="mt-1 block text-xs text-(--text-secondary)">
                 {option.description}

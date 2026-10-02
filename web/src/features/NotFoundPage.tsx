@@ -4,13 +4,9 @@ export function NotFoundPage() {
   return (
     <section className="flex min-h-[70vh] items-center justify-center">
       <div className="max-w-md text-center">
-        <p className="text-xs uppercase tracking-[0.35em] text-(--text-secondary)">
-          404
-        </p>
+        <p className="text-xs uppercase tracking-[0.35em] text-(--text-secondary)">404</p>
 
-        <h1 className="mt-4 text-3xl font-semibold text-(--text-primary)">
-          Página no encontrada
-        </h1>
+        <h1 className="mt-4 text-3xl font-semibold text-(--text-primary)">Página no encontrada</h1>
 
         <p className="mt-3 text-sm text-(--text-secondary)">
           La ruta que intentas visitar no existe en Omega Markets.

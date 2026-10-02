@@ -4,10 +4,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 export function AlertsPage() {
   return (
     <section className="space-y-6">
-      <PageHeader
-        title="Alerts"
-        description="Alertas de precio, cambios y riesgo."
-      />
+      <PageHeader title="Alerts" description="Alertas de precio, cambios y riesgo." />
 
       <EmptyState
         title="Alerts en construcción"

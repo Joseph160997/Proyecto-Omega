@@ -1,12 +1,4 @@
-import {
-  Bell,
-  Briefcase,
-  History,
-  LayoutDashboard,
-  LineChart,
-  Settings,
-  Star,
-} from 'lucide-react'
+import { Bell, Briefcase, History, LayoutDashboard, LineChart, Settings, Star } from 'lucide-react'
 
 import type { LucideIcon } from 'lucide-react'
 
