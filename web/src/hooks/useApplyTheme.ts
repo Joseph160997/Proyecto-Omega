@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { useThemeStore } from '@/stores/theme.store'
+
+import { useThemeStore } from '@/app/container'
 
 export function useApplyTheme() {
   const mode = useThemeStore((state) => state.mode)

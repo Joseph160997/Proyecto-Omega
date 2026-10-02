@@ -1,10 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Omega Markets</title>
+
+    <script>
+      try {
+        const raw = localStorage.getItem('omega-markets:settings:theme:v1')
+        const parsed = raw ? JSON.parse(raw) : { mode: 'dark' }
+        const mode = parsed.mode ?? 'dark'
+        const isDark = mode !== 'light'
+
+        document.documentElement.classList.toggle('dark', isDark)
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
+      } catch {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
