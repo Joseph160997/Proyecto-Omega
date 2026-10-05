@@ -1,11 +1,14 @@
 import { parseStrict } from '@/domain/shared/decimal-input'
 import { ok } from '@/domain/shared/result'
 
-import type { DecimalInputError } from '@/domain/shared/decimal-input'
+import type { DecimalInputError, DecimalLimits } from '@/domain/shared/decimal-input'
 import type { Dec } from '@/domain/shared/decimal'
 import type { Result } from '@/domain/shared/result'
 
 export const QUANTITY_DECIMALS = 8
+export const QUANTITY_MAX = '1000000000000' // 1e12
+
+const LIMITS: DecimalLimits = { max: QUANTITY_MAX, maxDecimals: QUANTITY_DECIMALS }
 
 export class Quantity {
   private readonly value: Dec
@@ -16,13 +19,13 @@ export class Quantity {
 
   /** Entrada no confiable (formularios). Devuelve el motivo si es inválida. */
   static parse(input: string): Result<Quantity, DecimalInputError> {
-    const parsed = parseStrict(input, QUANTITY_DECIMALS)
+    const parsed = parseStrict(input, LIMITS)
     return parsed.ok ? ok(new Quantity(parsed.value)) : parsed
   }
 
   /** Valores de confianza (tests, datos ya validados). Lanza si son inválidos. */
   static of(input: string | number): Quantity {
-    const parsed = parseStrict(input, QUANTITY_DECIMALS)
+    const parsed = parseStrict(input, LIMITS)
 
     if (!parsed.ok) {
       throw new RangeError(`Quantity inválida (${parsed.error.kind}): ${String(input)}`)

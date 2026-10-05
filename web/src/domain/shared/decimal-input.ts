@@ -8,51 +8,84 @@ export type DecimalInputError =
   | { kind: 'NOT_A_NUMBER' }
   | { kind: 'NEGATIVE' }
   | { kind: 'TOO_MANY_DECIMALS'; maxDecimals: number }
+  | { kind: 'TOO_LARGE'; max: string }
 
-// Solo decimales planos. Sin exponentes ni hex: decimal.js aceptaría "0x10" como número.
-const PLAIN_DECIMAL = /^-?\d+(\.\d+)?$/
-
-function toDecimal(input: string | number): Dec | null {
-  if (typeof input === 'string') {
-    const trimmed = input.trim()
-    return PLAIN_DECIMAL.test(trimmed) ? new D(trimmed) : null
-  }
-
-  const value = new D(input)
-  return value.isFinite() ? value : null
+export interface DecimalLimits {
+  /** Magnitud máxima (valor absoluto, inclusive) como string decimal plano. */
+  max: string
+  /** Decimales permitidos (strict) o a los que se redondea (rounded). */
+  maxDecimals: number
 }
 
-function toNonNegative(input: string | number): Result<Dec, DecimalInputError> {
-  const value = toDecimal(input)
+// Acota el costo de procesar entradas hostiles. El valor legítimo más largo
+// (22 enteros + 16 decimales + signo + punto) mide 40 caracteres.
+const MAX_INPUT_LENGTH = 64
 
-  if (value === null) return err({ kind: 'NOT_A_NUMBER' })
-  if (value.lessThan(0)) return err({ kind: 'NEGATIVE' })
+// Solo decimales planos. Sin exponentes, hex ni dígitos Unicode:
+// decimal.js aceptaría "0x10" o "1e3" como números.
+const PLAIN_DECIMAL = /^-?\d+(\.\d+)?$/
 
-  return ok(value.abs()) // normaliza "-0" a 0
+function parseBase(
+  input: string | number,
+  limits: DecimalLimits,
+  allowNegative: boolean,
+): Result<Dec, DecimalInputError> {
+  let value: Dec
+
+  if (typeof input === 'string') {
+    if (input.length > MAX_INPUT_LENGTH) {
+      return err({ kind: 'TOO_LARGE', max: limits.max })
+    }
+
+    const trimmed = input.trim()
+
+    if (!PLAIN_DECIMAL.test(trimmed)) {
+      return err({ kind: 'NOT_A_NUMBER' })
+    }
+
+    value = new D(trimmed)
+  } else {
+    value = new D(input)
+
+    if (!value.isFinite()) {
+      return err({ kind: 'NOT_A_NUMBER' })
+    }
+  }
+
+  if (!allowNegative && value.lessThan(0)) {
+    return err({ kind: 'NEGATIVE' })
+  }
+
+  if (value.abs().greaterThan(limits.max)) {
+    return err({ kind: 'TOO_LARGE', max: limits.max })
+  }
+
+  return ok(allowNegative ? value : value.abs()) // abs() normaliza "-0" a 0
 }
 
 /** Rechaza si hay más decimales de los permitidos. Para entrada del usuario. */
 export function parseStrict(
   input: string | number,
-  maxDecimals: number,
+  limits: DecimalLimits,
 ): Result<Dec, DecimalInputError> {
-  const base = toNonNegative(input)
+  const base = parseBase(input, limits, false)
   if (!base.ok) return base
 
-  if (base.value.decimalPlaces() > maxDecimals) {
-    return err({ kind: 'TOO_MANY_DECIMALS', maxDecimals })
+  if (base.value.decimalPlaces() > limits.maxDecimals) {
+    return err({ kind: 'TOO_MANY_DECIMALS', maxDecimals: limits.maxDecimals })
   }
 
   return base
 }
 
-/** Redondea half-up al límite de decimales. Para datos de mercado. */
+/** Redondea half-up. Para datos de mercado y montos. */
 export function parseRounded(
   input: string | number,
-  decimals: number,
+  limits: DecimalLimits,
+  options: { allowNegative?: boolean } = {},
 ): Result<Dec, DecimalInputError> {
-  const base = toNonNegative(input)
+  const base = parseBase(input, limits, options.allowNegative ?? false)
   if (!base.ok) return base
 
-  return ok(base.value.toDecimalPlaces(decimals, ROUND_HALF_UP))
+  return ok(base.value.toDecimalPlaces(limits.maxDecimals, ROUND_HALF_UP))
 }

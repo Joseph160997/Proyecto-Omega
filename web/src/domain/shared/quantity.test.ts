@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { Quantity } from '@/domain/shared/quantity'
+import { Quantity, QUANTITY_MAX } from '@/domain/shared/quantity'
 
 describe('Quantity.parse', () => {
   it.each([['0.00231'], ['1'], ['0'], ['  2.5  '], ['0.12345678']])('acepta %j', (input) => {
@@ -15,6 +15,8 @@ describe('Quantity.parse', () => {
     ['1e3', 'NOT_A_NUMBER'],
     ['-1', 'NEGATIVE'],
     ['0.123456789', 'TOO_MANY_DECIMALS'],
+    ['1000000000001', 'TOO_LARGE'],
+    ['9'.repeat(10_000), 'TOO_LARGE'],
   ])('rechaza %j con %s', (input, kind) => {
     const result = Quantity.parse(input)
 
@@ -26,6 +28,10 @@ describe('Quantity.parse', () => {
       ok: false,
       error: { kind: 'TOO_MANY_DECIMALS', maxDecimals: 8 },
     })
+  })
+
+  it('acepta el máximo exacto', () => {
+    expect(Quantity.parse(QUANTITY_MAX).ok).toBe(true)
   })
 })
 
