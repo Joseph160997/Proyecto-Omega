@@ -57,6 +57,15 @@ export class Money {
     return this.amount.equals(other.amount)
   }
 
+  /** Aplica un porcentaje en puntos básicos (10 = 0.1%) y redondea a centavos. */
+  applyBasisPoints(bps: number): Money {
+    if (!Number.isInteger(bps) || bps < 0 || bps > 10_000) {
+      throw new RangeError(`Puntos básicos inválidos: ${String(bps)}`)
+    }
+
+    return Money.usd(this.amount.times(bps).dividedBy(10_000).toFixed())
+  }
+
   /** Forma para persistir y mostrar: string con 2 decimales. */
   toString(): string {
     return this.amount.toFixed(2)

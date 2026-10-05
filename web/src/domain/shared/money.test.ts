@@ -62,6 +62,26 @@ describe('Money', () => {
     })
   })
 
+  describe('applyBasisPoints', () => {
+    it('calculates the percentage in basis points', () => {
+      expect(Money.usd(100).applyBasisPoints(10).toString()).toBe('0.10')
+      expect(Money.usd(50_000).applyBasisPoints(10).toString()).toBe('50.00')
+    })
+
+    it('rounds half-up to cents', () => {
+      expect(Money.usd(5).applyBasisPoints(10).toString()).toBe('0.01')
+    })
+
+    it('zero bps gives zero and 10,000 gives 100%', () => {
+      expect(Money.usd(100).applyBasisPoints(0).toString()).toBe('0.00')
+      expect(Money.usd(100).applyBasisPoints(10_000).toString()).toBe('100.00')
+    })
+
+    it.each([[-1], [1.5], [10_001], [NaN]])('rejects %s', (bps) => {
+      expect(() => Money.usd(100).applyBasisPoints(bps)).toThrow(RangeError)
+    })
+  })
+
   describe('invalid input', () => {
     it.each([
       ['abc'],
@@ -71,7 +91,7 @@ describe('Money', () => {
       [-Infinity],
       ['0x10'],
       ['1e3'],
-      ['１２'],
+      ['１２ '],
       ['9'.repeat(10_000)],
       [`1${'0'.repeat(23)}`],
     ])('rejects %j', (input) => {
