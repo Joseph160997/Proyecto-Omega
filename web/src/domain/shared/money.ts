@@ -1,8 +1,14 @@
-import { D, ROUND_HALF_UP } from '@/domain/shared/decimal'
+import { parseRounded } from '@/domain/shared/decimal-input'
 
 import type { Dec } from '@/domain/shared/decimal'
+import type { DecimalLimits } from '@/domain/shared/decimal-input'
 
 export type CurrencyCode = 'USD'
+
+// 1e22: debe cubrir QUANTITY_MAX × PRICE_MAX (1e21). Lo verifica notional.test.ts.
+export const MONEY_MAX = '10000000000000000000000'
+
+const MONEY_LIMITS: DecimalLimits = { max: MONEY_MAX, maxDecimals: 2 }
 
 export class Money {
   readonly currency: CurrencyCode = 'USD'
@@ -12,15 +18,15 @@ export class Money {
     this.amount = amount
   }
 
-  /** Acepta string (preferido) o number. Lanza si el valor no es un número finito. */
+  /** Acepta string o number. Lanza si el valor es inválido o excede el máximo. */
   static usd(value: string | number): Money {
-    const parsed = new D(value) // lanza DecimalError si el string no es numérico
+    const parsed = parseRounded(value, MONEY_LIMITS, { allowNegative: true })
 
-    if (!parsed.isFinite()) {
-      throw new RangeError(`Money inválido: ${String(value)}`)
+    if (!parsed.ok) {
+      throw new RangeError(`Money inválido (${parsed.error.kind}): ${String(value).slice(0, 40)}`)
     }
 
-    return new Money(parsed.toDecimalPlaces(2, ROUND_HALF_UP))
+    return new Money(parsed.value)
   }
 
   static zero(): Money {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { Money } from '@/domain/shared/money'
+import { MONEY_MAX, Money } from '@/domain/shared/money'
 
 describe('Money', () => {
   describe('precision', () => {
@@ -63,8 +63,28 @@ describe('Money', () => {
   })
 
   describe('invalid input', () => {
-    it.each([['abc'], [''], [NaN], [Infinity], [-Infinity]])('rejects %s', (input) => {
-      expect(() => Money.usd(input)).toThrow()
+    it.each([
+      ['abc'],
+      [''],
+      [NaN],
+      [Infinity],
+      [-Infinity],
+      ['0x10'],
+      ['1e3'],
+      ['１２'],
+      ['9'.repeat(10_000)],
+      [`1${'0'.repeat(23)}`],
+    ])('rejects %j', (input) => {
+      expect(() => Money.usd(input)).toThrow(RangeError)
+    })
+
+    it('accepts the exact maximum, positive and negative', () => {
+      expect(Money.usd(MONEY_MAX).toString()).toBe(`1${'0'.repeat(22)}.00`)
+      expect(Money.usd(`-${MONEY_MAX}`).isNegative()).toBe(true)
+    })
+
+    it('a negative that rounds to zero is not kept as "-0.00"', () => {
+      expect(Money.usd('-0.004').toString()).toBe('0.00')
     })
   })
 })
