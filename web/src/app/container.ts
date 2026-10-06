@@ -1,7 +1,10 @@
 import { createMemoryStorage } from '@/services/storage/memoryStorage'
 import { createThemeRepository } from '@/services/storage/themeRepository'
+import { createHttpClient } from '@/services/api/httpClient'
+import { createCoinGeckoProvider } from '@/services/api/providers/coingecko/coingeckoProvider'
 import { createThemeStore } from '@/stores/theme.store'
 
+import type { MarketDataProvider } from '@/application/market/ports'
 import type { KeyValueStorage } from '@/services/storage/jsonStorage'
 
 function getBrowserStorage(): KeyValueStorage {
@@ -16,3 +19,9 @@ function getBrowserStorage(): KeyValueStorage {
 const themeRepository = createThemeRepository(getBrowserStorage())
 
 export const useThemeStore = createThemeStore(themeRepository)
+
+const httpClient = createHttpClient()
+
+export const marketDataProvider: MarketDataProvider = createCoinGeckoProvider({
+  http: httpClient,
+})
