@@ -4,3 +4,4 @@ export type MarketDataError =
   | { kind: 'RATE_LIMIT'; retryAfterMs?: number }
   | { kind: 'PROVIDER_UNAVAILABLE' }
   | { kind: 'INVALID_RESPONSE' }
+  | { kind: 'UNSUPPORTED_ASSET'; assetId: string }
