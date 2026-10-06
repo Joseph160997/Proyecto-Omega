@@ -6,12 +6,12 @@ const URL_UNDER_TEST = 'https://api.test/quotes'
 
 type Handler = (init: RequestInit | undefined) => Promise<Response>
 
-/** fetch falso: el handler decide qué ocurre. Nada toca la red. */
+/** fake fetch: the handler decides what happens. Nothing touches the network. */
 function fakeFetch(handler: Handler): typeof fetch {
   return ((_input: RequestInfo | URL, init?: RequestInit) => handler(init)) as typeof fetch
 }
 
-/** Una petición que nunca termina, pero que respeta la señal de aborto. */
+/** A request that never resolves but respects the abort signal. */
 const hangingFetch = fakeFetch(
   (init) =>
     new Promise<Response>((_resolve, reject) => {
@@ -29,7 +29,7 @@ afterEach(() => {
 })
 
 describe('createHttpClient.getJson', () => {
-  it('devuelve el JSON de una respuesta correcta', async () => {
+  it('returns the JSON from a successful response', async () => {
     const client = createHttpClient({ fetchFn: fakeFetch(async () => jsonResponse({ price: 1 })) })
 
     expect(await client.getJson({ url: URL_UNDER_TEST })).toEqual({
@@ -38,7 +38,7 @@ describe('createHttpClient.getJson', () => {
     })
   })
 
-  it('hace GET con las cabeceras pedidas y una señal propia', async () => {
+  it('performs GET with the requested headers and its own signal', async () => {
     let captured: RequestInit | undefined
     const client = createHttpClient({
       fetchFn: fakeFetch(async (init) => {
@@ -54,8 +54,8 @@ describe('createHttpClient.getJson', () => {
     expect(captured?.signal).toBeInstanceOf(AbortSignal)
   })
 
-  describe('errores HTTP', () => {
-    it('429 con Retry-After informa la espera', async () => {
+  describe('HTTP errors', () => {
+    it('429 with Retry-After reports the wait time', async () => {
       const client = createHttpClient({
         fetchFn: fakeFetch(
           async () => new Response(null, { status: 429, headers: { 'Retry-After': '30' } }),
@@ -68,7 +68,7 @@ describe('createHttpClient.getJson', () => {
       })
     })
 
-    it('429 sin Retry-After no inventa una espera', async () => {
+    it('429 without Retry-After does not invent a wait time', async () => {
       const client = createHttpClient({
         fetchFn: fakeFetch(async () => new Response(null, { status: 429 })),
       })
@@ -79,7 +79,7 @@ describe('createHttpClient.getJson', () => {
       })
     })
 
-    it.each([[500], [503]])('%s es SERVER_ERROR', async (status) => {
+    it.each([[500], [503]])('%s is SERVER_ERROR', async (status) => {
       const client = createHttpClient({
         fetchFn: fakeFetch(async () => new Response(null, { status })),
       })
@@ -90,7 +90,7 @@ describe('createHttpClient.getJson', () => {
       })
     })
 
-    it.each([[400], [401], [404]])('%s es CLIENT_ERROR', async (status) => {
+    it.each([[400], [401], [404]])('%s is CLIENT_ERROR', async (status) => {
       const client = createHttpClient({
         fetchFn: fakeFetch(async () => new Response(null, { status })),
       })
@@ -101,7 +101,7 @@ describe('createHttpClient.getJson', () => {
       })
     })
 
-    it('un 200 con cuerpo que no es JSON es INVALID_BODY', async () => {
+    it('a 200 response with a non-JSON body is INVALID_BODY', async () => {
       const client = createHttpClient({
         fetchFn: fakeFetch(async () => new Response('<html>mantenimiento</html>', { status: 200 })),
       })
@@ -112,7 +112,7 @@ describe('createHttpClient.getJson', () => {
       })
     })
 
-    it('un fallo de red es NETWORK_ERROR', async () => {
+    it('a network failure is NETWORK_ERROR', async () => {
       const client = createHttpClient({
         fetchFn: fakeFetch(async () => {
           throw new TypeError('Failed to fetch')
@@ -127,7 +127,7 @@ describe('createHttpClient.getJson', () => {
   })
 
   describe('timeout', () => {
-    it('devuelve TIMEOUT cuando se agota el tiempo pedido', async () => {
+    it('returns TIMEOUT when the requested timeout expires', async () => {
       vi.useFakeTimers()
       const client = createHttpClient({ fetchFn: hangingFetch })
 
@@ -137,7 +137,7 @@ describe('createHttpClient.getJson', () => {
       expect(await pending).toEqual({ ok: false, error: { kind: 'TIMEOUT' } })
     })
 
-    it('por defecto espera 8 segundos', async () => {
+    it('defaults to an 8-second timeout', async () => {
       vi.useFakeTimers()
       const client = createHttpClient({ fetchFn: hangingFetch })
 
@@ -147,7 +147,7 @@ describe('createHttpClient.getJson', () => {
       expect(await pending).toEqual({ ok: false, error: { kind: 'TIMEOUT' } })
     })
 
-    it('no deja timers colgados tras una respuesta correcta', async () => {
+    it('does not leave timers hanging after a successful response', async () => {
       vi.useFakeTimers()
       const client = createHttpClient({ fetchFn: fakeFetch(async () => jsonResponse({})) })
 
@@ -157,8 +157,8 @@ describe('createHttpClient.getJson', () => {
     })
   })
 
-  describe('cancelación externa', () => {
-    it('cancelar a mitad de camino RECHAZA con AbortError (no devuelve Result)', async () => {
+  describe('external cancellation', () => {
+    it('cancelling mid-flight REJECTS with AbortError (does not return a Result)', async () => {
       const client = createHttpClient({ fetchFn: hangingFetch })
       const controller = new AbortController()
 
@@ -171,7 +171,7 @@ describe('createHttpClient.getJson', () => {
       expect((error as DOMException).name).toBe('AbortError')
     })
 
-    it('una señal ya cancelada rechaza sin llamar a fetch', async () => {
+    it('an already-cancelled signal rejects without calling fetch', async () => {
       let calls = 0
       const client = createHttpClient({
         fetchFn: fakeFetch(async () => {

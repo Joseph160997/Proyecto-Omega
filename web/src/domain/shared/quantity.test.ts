@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { Quantity, QUANTITY_MAX } from '@/domain/shared/quantity'
 
 describe('Quantity.parse', () => {
-  it.each([['0.00231'], ['1'], ['0'], ['  2.5  '], ['0.12345678']])('acepta %j', (input) => {
+  it.each([['0.00231'], ['1'], ['0'], ['  2.5  '], ['0.12345678']])('accepts %j', (input) => {
     expect(Quantity.parse(input).ok).toBe(true)
   })
 
@@ -17,51 +17,51 @@ describe('Quantity.parse', () => {
     ['0.123456789', 'TOO_MANY_DECIMALS'],
     ['1000000000001', 'TOO_LARGE'],
     ['9'.repeat(10_000), 'TOO_LARGE'],
-  ])('rechaza %j con %s', (input, kind) => {
+  ])('rejects %j with %s', (input, kind) => {
     const result = Quantity.parse(input)
 
     expect(!result.ok && result.error.kind).toBe(kind)
   })
 
-  it('informa el máximo de decimales permitido', () => {
+  it('reports the maximum allowed decimal places', () => {
     expect(Quantity.parse('0.123456789')).toEqual({
       ok: false,
       error: { kind: 'TOO_MANY_DECIMALS', maxDecimals: 8 },
     })
   })
 
-  it('acepta el máximo exacto', () => {
+  it('accepts the exact maximum', () => {
     expect(Quantity.parse(QUANTITY_MAX).ok).toBe(true)
   })
 })
 
 describe('Quantity', () => {
-  it('serializa en forma canónica', () => {
+  it('serializes in canonical form', () => {
     expect(Quantity.of('1.50').toString()).toBe('1.5')
     expect(Quantity.of('2').toString()).toBe('2')
     expect(Quantity.of('0.00000001').toString()).toBe('0.00000001')
   })
 
-  it('of rechaza el ruido de punto flotante en vez de aceptarlo', () => {
+  it('of rejects floating-point noise instead of accepting it', () => {
     expect(() => Quantity.of(0.1 + 0.2)).toThrow(RangeError)
   })
 
-  it('suma y resta', () => {
+  it('adds and subtracts', () => {
     expect(Quantity.of('0.1').add(Quantity.of('0.2')).toString()).toBe('0.3')
     expect(Quantity.of('1').subtract(Quantity.of('0.25')).toString()).toBe('0.75')
   })
 
-  it('subtract lanza si el resultado sería negativo', () => {
+  it('subtract throws if the result would be negative', () => {
     expect(() => Quantity.of('1').subtract(Quantity.of('2'))).toThrow(RangeError)
   })
 
-  it('compara', () => {
+  it('compares', () => {
     expect(Quantity.of('1').isLessThan(Quantity.of('2'))).toBe(true)
     expect(Quantity.of('1.0').equals(Quantity.of('1'))).toBe(true)
     expect(Quantity.zero().isZero()).toBe(true)
   })
 
-  it('es inmutable', () => {
+  it('is immutable', () => {
     const original = Quantity.of('1')
     original.add(Quantity.of('1'))
 
