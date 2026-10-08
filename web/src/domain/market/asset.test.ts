@@ -6,36 +6,42 @@ import type { AssetType } from '@/domain/market/asset'
 
 describe('makeAssetId', () => {
   const valid: Array<[AssetType, string, string]> = [
-    ['crypto', 'BTC', 'crypto:btc'],
-    ['crypto', '  Eth ', 'crypto:eth'],
+    ['crypto', 'bitcoin', 'crypto:bitcoin'],
+    ['crypto', '  Ethereum ', 'crypto:ethereum'],
+    ['crypto', 'avalanche-2', 'crypto:avalanche-2'],
     ['stock', 'BRK.B', 'stock:brk.b'],
     ['forex', 'EURUSD', 'forex:eurusd'],
-    ['index', 'sp-500', 'index:sp-500'],
-    ['crypto', 'a'.repeat(20), `crypto:${'a'.repeat(20)}`],
+    ['crypto', 'a'.repeat(64), `crypto:${'a'.repeat(64)}`],
   ]
 
-  it.each(valid)('%s + %j → %s', (type, symbol, expected) => {
-    const result = makeAssetId(type, symbol)
+  it.each(valid)('%s + %j → %s', (type, key, expected) => {
+    const result = makeAssetId(type, key)
 
     expect(result.ok && result.value).toBe(expected)
   })
 
-  it.each([[''], ['   '], ['EUR/USD'], ['$MOON'], ['a b'], ['ＢＴＣ'], ['-btc'], ['a'.repeat(21)]])(
-    'rejects %j',
-    (symbol) => {
-      expect(makeAssetId('crypto', symbol)).toEqual({
-        ok: false,
-        error: { kind: 'INVALID_ASSET_ID' },
-      })
-    },
-  )
+  it.each([
+    [''],
+    ['   '],
+    ['EUR/USD'],
+    ['$MOON'],
+    ['a b'],
+    ['ＢＴＣ'], // full-width characters
+    ['-btc'],
+    ['a'.repeat(65)],
+  ])('rejects %j', (key) => {
+    expect(makeAssetId('crypto', key)).toEqual({
+      ok: false,
+      error: { kind: 'INVALID_ASSET_ID' },
+    })
+  })
 })
 
 describe('parseAssetId', () => {
-  it('decomposes a canonical id', () => {
-    expect(parseAssetId('crypto:btc')).toEqual({
+  it('decomposes a canonical ID', () => {
+    expect(parseAssetId('crypto:bitcoin')).toEqual({
       ok: true,
-      value: { type: 'crypto', symbol: 'btc' },
+      value: { type: 'crypto', key: 'bitcoin' },
     })
   })
 
@@ -44,20 +50,20 @@ describe('parseAssetId', () => {
 
     expect(made.ok && parseAssetId(made.value)).toEqual({
       ok: true,
-      value: { type, symbol: 'abc1' },
+      value: { type, key: 'abc1' },
     })
   })
 
   it.each([
     [''],
-    ['btc'],
-    [':btc'],
+    ['bitcoin'],
+    [':bitcoin'],
     ['crypto:'],
-    ['foo:btc'],
-    ['crypto:BTC'],
+    ['foo:bitcoin'],
+    ['crypto:Bitcoin'],
     ['crypto:a:b'],
-    [' crypto:btc'],
-    ['crypto:btc '],
+    [' crypto:bitcoin'],
+    ['crypto:bitcoin '],
   ])('rejects %j', (id) => {
     expect(parseAssetId(id).ok).toBe(false)
   })
