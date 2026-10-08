@@ -29,6 +29,8 @@ function mapItem(raw: unknown, assetId: string): Result<MarketQuote, MarketDataE
   const timestamp = Date.parse(item.last_updated)
   if (Number.isNaN(timestamp)) return err(INVALID_RESPONSE)
 
+  const prices = item.sparkline_in_7d?.price
+
   return ok({
     assetId,
     price: price.value,
@@ -39,6 +41,7 @@ function mapItem(raw: unknown, assetId: string): Result<MarketQuote, MarketDataE
     type: 'crypto',
     change24hPercent: item.price_change_percentage_24h ?? undefined,
     volume24h: item.total_volume ?? undefined,
+    sparkline7d: prices !== undefined && prices.length > 0 ? prices : undefined,
     marketCap: item.market_cap ?? undefined,
   })
 }

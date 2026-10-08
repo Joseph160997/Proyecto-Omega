@@ -12,6 +12,11 @@ export const CoinGeckoMarketItemSchema = z.object({
   market_cap: z.number().nullable().optional(),
   total_volume: z.number().nullable().optional(),
   price_change_percentage_24h: z.number().nullable().optional(),
+  // Optional decoration: malformed series data should not invalidate the coin.
+  sparkline_in_7d: z
+    .object({ price: z.array(z.number()) })
+    .nullish()
+    .catch(undefined),
   // Forma ISO obligatoria: Date.parse es demasiado permisivo (acepta "1" como fecha).
   last_updated: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
 })

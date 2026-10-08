@@ -41,6 +41,15 @@ describe('createCoinGeckoProvider', () => {
     expect(url.searchParams.get('ids')).toBe('bitcoin,ethereum')
   })
 
+  it('does not request a 7-day series for quotes', async () => {
+    const { http, requests } = fakeHttp(ok([]))
+    const provider = createCoinGeckoProvider({ http })
+
+    await provider.getQuotes(['crypto:bitcoin'])
+
+    expect(new URL(requests[0]?.url ?? '').searchParams.get('sparkline')).toBe('false')
+  })
+
   it('returns quotes from a real response and satisfies the contract', async () => {
     const { http } = fakeHttp(ok(COINGECKO_MARKETS_FIXTURE))
     const provider = createCoinGeckoProvider({ http })
@@ -77,6 +86,15 @@ describe('createCoinGeckoProvider', () => {
     expect(url.searchParams.has('ids')).toBe(false)
     expect(requests[0]?.signal).toBe(controller.signal)
     expect(result.ok && result.value.quotes[0]?.assetId).toBe('crypto:bitcoin')
+  })
+
+  it('requests the 7-day series for listings', async () => {
+    const { http, requests } = fakeHttp(ok(COINGECKO_MARKETS_FIXTURE))
+    const provider = createCoinGeckoProvider({ http })
+
+    await provider.listTop(250)
+
+    expect(new URL(requests[0]?.url ?? '').searchParams.get('sparkline')).toBe('true')
   })
 
   it('rejects a listing limit above CoinGecko maximum before requesting', async () => {

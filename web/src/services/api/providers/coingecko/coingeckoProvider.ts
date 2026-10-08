@@ -81,6 +81,7 @@ export function createCoinGeckoProvider({
           order: 'market_cap_desc',
           per_page: String(limit),
           page: '1',
+          sparkline: 'true',
         }),
         signal: options?.signal,
       })

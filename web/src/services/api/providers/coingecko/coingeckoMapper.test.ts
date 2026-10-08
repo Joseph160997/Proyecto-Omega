@@ -223,3 +223,41 @@ describe('mapCoinGeckoListing', () => {
     })
   })
 })
+
+describe('7-day sparkline mapping', () => {
+  it('maps the series when present', () => {
+    const result = mapCoinGeckoMarkets(
+      bitcoinWith({ sparkline_in_7d: { price: [1, 2, 3] } }),
+      ONLY_BTC,
+    )
+
+    expect(result.quotes[0]?.sparkline7d).toEqual([1, 2, 3])
+  })
+
+  it('leaves the series undefined when the response omits it', () => {
+    const result = mapCoinGeckoMarkets(COINGECKO_MARKETS_FIXTURE, ONLY_BTC)
+
+    expect(result.quotes).toHaveLength(1)
+    expect(result.quotes[0]?.sparkline7d).toBeUndefined()
+  })
+
+  it.each([
+    ['null', null],
+    ['text', 'invalid'],
+    ['missing prices', {}],
+    ['non-numeric prices', { price: ['a', 'b'] }],
+    ['empty series', { price: [] }],
+  ])('ignores an invalid %s series without rejecting the coin', (_label, sparkline) => {
+    const result = mapCoinGeckoMarkets(bitcoinWith({ sparkline_in_7d: sparkline }), ONLY_BTC)
+
+    expect(result.failures).toEqual([])
+    expect(result.quotes).toHaveLength(1)
+    expect(result.quotes[0]?.sparkline7d).toBeUndefined()
+  })
+
+  it('preserves the series in listings', () => {
+    const result = mapCoinGeckoListing(bitcoinWith({ sparkline_in_7d: { price: [1, 2, 3] } }))
+
+    expect(result.ok && result.value.quotes[0]?.sparkline7d).toEqual([1, 2, 3])
+  })
+})

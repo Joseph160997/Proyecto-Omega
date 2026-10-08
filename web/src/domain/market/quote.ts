@@ -27,6 +27,7 @@ export interface MarketQuote extends Quote {
   readonly type: AssetType
   readonly change24hPercent?: number // 2.35 significa +2.35%
   readonly volume24h?: number
+  readonly sparkline7d?: readonly number[] // Prices from the last 7 days, for display only.
   readonly marketCap?: number
 }
 
