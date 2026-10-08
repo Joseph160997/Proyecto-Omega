@@ -5,6 +5,7 @@ import { Sparkline } from '@/features/markets/Sparkline'
 import {
   DEFAULT_SORT,
   filterQuotes,
+  MARKET_PAGE_SIZE,
   nextSort,
   sortQuotes,
 } from '@/features/markets/marketTableLogic'
@@ -21,12 +22,23 @@ interface MarketTableProps {
 export function MarketTable({ quotes }: MarketTableProps) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortState>(DEFAULT_SORT)
+  const [visibleCount, setVisibleCount] = useState(MARKET_PAGE_SIZE)
   const searchId = useId()
 
   const rows = sortQuotes(filterQuotes(quotes, query), sort)
+  const visibleRows = rows.slice(0, visibleCount)
+  const remaining = rows.length - visibleRows.length
 
   const directionOf = (key: SortKey) => (sort.key === key ? sort.direction : null)
-  const sortBy = (key: SortKey) => () => setSort((current) => nextSort(current, key))
+  const handleQueryChange = (value: string) => {
+    setQuery(value)
+    setVisibleCount(MARKET_PAGE_SIZE)
+  }
+
+  const sortBy = (key: SortKey) => () => {
+    setSort((current) => nextSort(current, key))
+    setVisibleCount(MARKET_PAGE_SIZE)
+  }
 
   return (
     <div className="space-y-3">
@@ -38,16 +50,14 @@ export function MarketTable({ quotes }: MarketTableProps) {
           id={searchId}
           type="search"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => handleQueryChange(event.target.value)}
           placeholder="Buscar por nombre o símbolo…"
           className="w-full max-w-sm rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm placeholder:text-(--text-secondary)"
         />
       </div>
 
       <p role="status" className="text-xs text-(--text-secondary)">
-        {rows.length === quotes.length
-          ? `${rows.length} activos`
-          : `${rows.length} de ${quotes.length} activos`}
+        {visibleRows.length} de {rows.length} {query.trim() === '' ? 'activos' : 'coincidencias'}
       </p>
 
       <div className="overflow-x-auto rounded-2xl border border-(--border) bg-(--surface)">
@@ -99,7 +109,7 @@ export function MarketTable({ quotes }: MarketTableProps) {
                 </td>
               </tr>
             ) : (
-              rows.map((quote) => (
+              visibleRows.map((quote) => (
                 <tr key={quote.assetId}>
                   <th scope="row" className="px-4 py-3 text-left font-medium">
                     {quote.name} <span className="text-(--text-secondary)">{quote.symbol}</span>
@@ -127,6 +137,16 @@ export function MarketTable({ quotes }: MarketTableProps) {
           </tbody>
         </table>
       </div>
+
+      {remaining > 0 ? (
+        <button
+          type="button"
+          onClick={() => setVisibleCount((current) => current + MARKET_PAGE_SIZE)}
+          className="rounded-lg border border-(--border) px-4 py-2 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+        >
+          Mostrar {Math.min(MARKET_PAGE_SIZE, remaining)} más ({remaining} restantes)
+        </button>
+      ) : null}
     </div>
   )
 }

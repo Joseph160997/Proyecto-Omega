@@ -9,6 +9,7 @@ export interface SortState {
 }
 
 export const DEFAULT_SORT: SortState = { key: 'marketCap', direction: 'desc' }
+export const MARKET_PAGE_SIZE = 50
 
 const FIRST_DIRECTION: Record<SortKey, SortDirection> = {
   name: 'asc',

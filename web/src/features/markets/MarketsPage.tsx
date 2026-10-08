@@ -1,16 +1,17 @@
 // src/features/markets/MarketsPage.tsx
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { newestQuoteTimestamp } from '@/domain/market/quote'
+import { DataFreshness } from '@/features/markets/DataFreshness'
 import { MarketTable } from '@/features/markets/MarketTable'
-import { MarketListingUnavailableError } from '@/features/markets/marketQueries'
+import { describeMarketError } from '@/features/markets/marketErrors'
+import { MarketTableSkeleton } from '@/features/markets/MarketTableSkeleton'
 import { useMarketListing } from '@/features/markets/useMarketListing'
 
 export function MarketsPage() {
-  const { data, error, isPending, isFetching, dataUpdatedAt, refetch } = useMarketListing()
+  const { data, error, isPending, isFetching, refetch } = useMarketListing()
 
-  // Provisional: muestra el `kind` crudo para diagnosticar. El paso 4 lo traduce.
-  const failureKind =
-    error instanceof MarketListingUnavailableError ? error.reason.kind : (error?.message ?? null)
+  const timestamp = data ? newestQuoteTimestamp(data.quotes) : undefined
 
   return (
     <section className="space-y-6">
@@ -29,24 +30,30 @@ export function MarketsPage() {
         }
       />
 
-      {isPending ? <p role="status">Cargando mercados…</p> : null}
+      {isPending ? <MarketTableSkeleton /> : null}
 
       {error && !data ? (
-        <EmptyState title="No se pudo cargar el mercado" description={`Motivo: ${failureKind}`} />
+        <EmptyState title="No se pudo cargar el mercado" description={describeMarketError(error)} />
       ) : null}
 
       {error && data ? (
         <p role="alert" className="text-sm text-(--warning)">
-          No se pudo actualizar ({failureKind}). Mostrando datos anteriores.
+          No se pudo actualizar. {describeMarketError(error)} Se muestran los últimos datos
+          recibidos.
         </p>
       ) : null}
 
       {data ? (
         <div className="space-y-3">
-          <p className="text-xs text-(--text-secondary)">
-            {data.skipped > 0 ? `${data.skipped} descartadas. ` : ''}
-            Actualizado: {new Date(dataUpdatedAt).toLocaleTimeString()}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <DataFreshness timestamp={timestamp} />
+
+            {data.skipped > 0 ? (
+              <p className="text-xs text-(--text-secondary)">
+                {data.skipped} activos descartados por datos inválidos.
+              </p>
+            ) : null}
+          </div>
 
           <MarketTable quotes={data.quotes} />
         </div>
