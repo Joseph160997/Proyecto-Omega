@@ -1,4 +1,6 @@
-import type { QuotesResult } from '@/application/market/quotes-result'
+import type { MarketDataError } from '@/application/market/errors'
+import type { MarketListing, QuotesResult } from '@/application/market/quotes-result'
+import type { Result } from '@/domain/shared/result'
 
 export interface MarketDataRequestOptions {
   /** TanStack Query pasa una señal para cancelar peticiones obsoletas. */
@@ -16,4 +18,21 @@ export interface MarketDataProvider {
    * - Cualquier otra excepción indica un bug del provider.
    */
   getQuotes(assetIds: readonly string[], options?: MarketDataRequestOptions): Promise<QuotesResult>
+}
+
+export interface MarketListingProvider {
+  /**
+   * Los `limit` activos más grandes por capitalización, en el orden del proveedor.
+   *
+   * Contrato:
+   * - Un fallo esperado se devuelve como error, no se lanza.
+   * - `limit` debe ser un entero positivo; cada provider impone su máximo y lanza
+   *   RangeError si se excede (es un bug de quien llama, no un fallo de datos).
+   * - Cancelar con `signal` rechaza con AbortError.
+   * - El orden no es parte del contrato de la UI: quien necesite un orden lo pide explícito.
+   */
+  listTop(
+    limit: number,
+    options?: MarketDataRequestOptions,
+  ): Promise<Result<MarketListing, MarketDataError>>
 }

@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import { answersExactly } from '@/application/market/quotes-result'
-import { mapCoinGeckoMarkets } from '@/services/api/providers/coingecko/coingeckoMapper'
+import {
+  mapCoinGeckoListing,
+  mapCoinGeckoMarkets,
+} from '@/services/api/providers/coingecko/coingeckoMapper'
 import { COINGECKO_MARKETS_FIXTURE } from '@/services/api/providers/coingecko/coingeckoMarkets.fixture'
 
 const ALL = new Map([
@@ -162,5 +165,61 @@ describe('unexpected response shape', () => {
     expect(result.quotes).toHaveLength(1)
     expect(result.quotes[0]?.name).toBe('Bitcoin')
     expect(result.quotes[0]?.price.toString()).toBe('85591')
+  })
+})
+describe('mapCoinGeckoListing', () => {
+  it('maps the real response using CoinGecko IDs as canonical asset IDs', () => {
+    const result = mapCoinGeckoListing(COINGECKO_MARKETS_FIXTURE)
+
+    expect(result.ok && result.value.quotes.map((quote) => quote.assetId)).toEqual([
+      'crypto:bitcoin',
+      'crypto:ethereum',
+      'crypto:solana',
+    ])
+    expect(result.ok && result.value.skipped).toBe(0)
+  })
+
+  it('skips invalid coins and counts them', () => {
+    const result = mapCoinGeckoListing([{ ...bitcoin, current_price: null }, ethereum])
+
+    expect(result.ok && result.value.quotes.map((quote) => quote.assetId)).toEqual([
+      'crypto:ethereum',
+    ])
+    expect(result.ok && result.value.skipped).toBe(1)
+  })
+
+  it.each([
+    ['missing ID', { id: undefined }],
+    ['invalid canonical ID', { id: 'Id Raro!' }],
+  ])('skips a coin with a %s', (_label, overrides) => {
+    const result = mapCoinGeckoListing([{ ...bitcoin, ...overrides }, ethereum])
+
+    expect(result.ok && result.value.quotes).toHaveLength(1)
+    expect(result.ok && result.value.skipped).toBe(1)
+  })
+
+  it('keeps the first duplicate and counts later copies as skipped', () => {
+    const result = mapCoinGeckoListing([bitcoin, { ...bitcoin, current_price: 1 }])
+
+    expect(result.ok && result.value.quotes).toHaveLength(1)
+    expect(result.ok && result.value.quotes[0]?.price.toString()).toBe('85591')
+    expect(result.ok && result.value.skipped).toBe(1)
+  })
+
+  it.each([[{ status: { error_code: 429 } }], ['text'], [null], [42], [[]]])(
+    'returns INVALID_RESPONSE for an unusable response (%j)',
+    (body) => {
+      expect(mapCoinGeckoListing(body)).toEqual({
+        ok: false,
+        error: { kind: 'INVALID_RESPONSE' },
+      })
+    },
+  )
+
+  it('returns INVALID_RESPONSE when no coin can be mapped', () => {
+    expect(mapCoinGeckoListing([{ ...bitcoin, current_price: null }])).toEqual({
+      ok: false,
+      error: { kind: 'INVALID_RESPONSE' },
+    })
   })
 })

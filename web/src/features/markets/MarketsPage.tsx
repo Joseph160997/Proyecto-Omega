@@ -1,23 +1,20 @@
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { MarketQuotesUnavailableError } from '@/features/markets/marketQueries'
-import { useMarketQuotes } from '@/features/markets/useMarketQuotes'
+import { MarketListingUnavailableError } from '@/features/markets/marketQueries'
+import { useMarketListing } from '@/features/markets/useMarketListing'
 import { formatCompactUsd, formatPercentChange, formatUsdPrice } from '@/lib/format'
 
 export function MarketsPage() {
-  const { data, error, isPending, isFetching, dataUpdatedAt, refetch } = useMarketQuotes()
+  const { data, error, isPending, isFetching, dataUpdatedAt, refetch } = useMarketListing()
 
-  // Provisional: muestra el `kind` crudo para diagnosticar. El M4b lo traduce.
   const failureKind =
-    error instanceof MarketQuotesUnavailableError
-      ? (error.failures[0]?.error.kind ?? 'DESCONOCIDO')
-      : (error?.message ?? null)
+    error instanceof MarketListingUnavailableError ? error.reason.kind : (error?.message ?? null)
 
   return (
     <section className="space-y-6">
       <PageHeader
         title="Markets"
-        description="Versión provisional: datos reales de CoinGecko."
+        description="Versión provisional: top 250 de CoinGecko."
         actions={
           <button
             type="button"
@@ -45,7 +42,7 @@ export function MarketsPage() {
       {data ? (
         <div className="space-y-3">
           <p className="text-xs text-(--text-secondary)">
-            {data.quotes.length} cotizaciones, {data.failures.length} fallos. Actualizado:{' '}
+            {data.quotes.length} cotizaciones ({data.skipped} descartadas). Actualizado:{' '}
             {new Date(dataUpdatedAt).toLocaleTimeString()}
           </p>
 

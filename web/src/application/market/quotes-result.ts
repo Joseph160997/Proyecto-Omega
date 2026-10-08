@@ -11,6 +11,13 @@ export interface QuotesResult {
   readonly failures: readonly QuoteFailure[]
 }
 
+/** Resultado de pedir un listado (top N) en vez de ids concretos. */
+export interface MarketListing {
+  readonly quotes: readonly MarketQuote[]
+  /** Elementos de la respuesta que no se pudieron usar (inválidos o repetidos). */
+  readonly skipped: number
+}
+
 /** Todos los ids fallaron por la misma causa (ej. sin red). */
 export function failAll(assetIds: readonly string[], error: MarketDataError): QuotesResult {
   return { quotes: [], failures: assetIds.map((assetId) => ({ assetId, error })) }

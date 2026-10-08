@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { failAll } from '@/application/market/quotes-result'
+import { makeAssetId } from '@/domain/market/asset'
 import { Price } from '@/domain/shared/price'
 import { err, ok } from '@/domain/shared/result'
 import {
@@ -9,7 +10,7 @@ import {
 } from '@/services/api/providers/coingecko/coingeckoSchema'
 
 import type { MarketDataError } from '@/application/market/errors'
-import type { QuoteFailure, QuotesResult } from '@/application/market/quotes-result'
+import type { MarketListing, QuoteFailure, QuotesResult } from '@/application/market/quotes-result'
 import type { MarketQuote } from '@/domain/market/quote'
 import type { Result } from '@/domain/shared/result'
 
@@ -90,4 +91,41 @@ export function mapCoinGeckoMarkets(
   }
 
   return { quotes, failures }
+}
+
+/**
+ * Convierte la respuesta de /coins/markets (top N) en un listado.
+ * Descarta y cuenta elementos inválidos o repetidos; si ninguno sirve, falla.
+ */
+export function mapCoinGeckoListing(body: unknown): Result<MarketListing, MarketDataError> {
+  const envelope = z.array(z.unknown()).safeParse(body)
+  if (!envelope.success) return err(INVALID_RESPONSE)
+
+  const quotes: MarketQuote[] = []
+  const seen = new Set<string>()
+  let skipped = 0
+
+  for (const raw of envelope.data) {
+    const identity = CoinGeckoItemIdentitySchema.safeParse(raw)
+    const assetId = identity.success ? makeAssetId('crypto', identity.data.id) : undefined
+
+    if (!assetId?.ok || seen.has(assetId.value)) {
+      skipped += 1
+      continue
+    }
+
+    seen.add(assetId.value)
+
+    const mapped = mapItem(raw, assetId.value)
+
+    if (mapped.ok) {
+      quotes.push(mapped.value)
+    } else {
+      skipped += 1
+    }
+  }
+
+  if (quotes.length === 0) return err(INVALID_RESPONSE)
+
+  return ok({ quotes, skipped })
 }

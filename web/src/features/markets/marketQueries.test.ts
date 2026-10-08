@@ -3,15 +3,20 @@ import { describe, expect, it } from 'vitest'
 
 import { failAll } from '@/application/market/quotes-result'
 import { Price } from '@/domain/shared/price'
+import { err, ok } from '@/domain/shared/result'
 import {
   marketKeys,
+  marketListingQueryOptions,
+  MarketListingUnavailableError,
   MarketQuotesUnavailableError,
   marketQuotesQueryOptions,
 } from '@/features/markets/marketQueries'
 
-import type { MarketDataProvider } from '@/application/market/ports'
-import type { QuotesResult } from '@/application/market/quotes-result'
+import type { MarketDataError } from '@/application/market/errors'
+import type { MarketDataProvider, MarketListingProvider } from '@/application/market/ports'
+import type { MarketListing, QuotesResult } from '@/application/market/quotes-result'
 import type { MarketQuote } from '@/domain/market/quote'
+import type { Result } from '@/domain/shared/result'
 
 const quote = (assetId: string): MarketQuote => ({
   assetId,
@@ -30,6 +35,19 @@ function fakeProvider(result: QuotesResult) {
   const provider: MarketDataProvider = {
     async getQuotes(ids, options) {
       calls.push({ ids, signal: options?.signal })
+      return result
+    },
+  }
+
+  return { provider, calls }
+}
+
+function fakeListingProvider(result: Result<MarketListing, MarketDataError>) {
+  const calls: Array<{ limit: number; signal?: AbortSignal }> = []
+
+  const provider: MarketListingProvider = {
+    async listTop(limit, options) {
+      calls.push({ limit, signal: options?.signal })
       return result
     },
   }
@@ -105,5 +123,43 @@ describe('marketQuotesQueryOptions', () => {
     await newClient().fetchQuery(marketQuotesQueryOptions(provider, ['crypto:btc']))
 
     expect(calls[0]?.signal).toBeInstanceOf(AbortSignal)
+  })
+})
+
+describe('marketListingQueryOptions', () => {
+  it('returns the provider listing', async () => {
+    const listing: MarketListing = { quotes: [quote('crypto:bitcoin')], skipped: 2 }
+    const { provider } = fakeListingProvider(ok(listing))
+
+    const data = await newClient().fetchQuery(marketListingQueryOptions(provider, 50))
+
+    expect(data).toEqual(listing)
+  })
+
+  it('passes the requested limit and an abort signal to the provider', async () => {
+    const { provider, calls } = fakeListingProvider(
+      ok({ quotes: [quote('crypto:bitcoin')], skipped: 0 }),
+    )
+
+    await newClient().fetchQuery(marketListingQueryOptions(provider, 50))
+
+    expect(calls[0]?.limit).toBe(50)
+    expect(calls[0]?.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it('wraps provider errors with MarketListingUnavailableError and preserves the reason', async () => {
+    const reason: MarketDataError = { kind: 'RATE_LIMIT' }
+    const { provider } = fakeListingProvider(err(reason))
+
+    const error = await newClient()
+      .fetchQuery(marketListingQueryOptions(provider))
+      .catch((cause: unknown) => cause)
+
+    expect(error).toBeInstanceOf(MarketListingUnavailableError)
+    expect((error as MarketListingUnavailableError).reason).toEqual(reason)
+  })
+
+  it('uses a different cache key for each limit', () => {
+    expect(marketKeys.listing(50)).not.toEqual(marketKeys.listing(250))
   })
 })
