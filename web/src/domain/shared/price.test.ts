@@ -47,3 +47,18 @@ describe('Price', () => {
     expect(Price.of(PRICE_MAX).toString()).toBe('1000000000')
   })
 })
+
+describe('Price.compareTo', () => {
+  it('compares numeric values, not their text representation', () => {
+    expect(Price.of('9').compareTo(Price.of('10'))).toBeLessThan(0)
+    expect(Price.of('10').compareTo(Price.of('9'))).toBeGreaterThan(0)
+  })
+
+  it('returns zero for equivalent values', () => {
+    expect(Price.of('1.0').compareTo(Price.of('1'))).toBe(0)
+  })
+
+  it('distinguishes values through the eighth decimal place', () => {
+    expect(Price.of('0.00000001').compareTo(Price.of('0.00000002'))).toBeLessThan(0)
+  })
+})

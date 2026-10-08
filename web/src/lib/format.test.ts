@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
 import { Price } from '@/domain/shared/price'
-import { formatCompactUsd, formatPercentChange, formatUsdPrice } from '@/lib/format'
+import {
+  formatCompactUsd,
+  formatPercentChange,
+  formatUsdPrice,
+  percentChangeDirection,
+} from '@/lib/format'
 
 describe('formatUsdPrice', () => {
   it.each([
@@ -49,5 +54,20 @@ describe('formatPercentChange', () => {
 
   it.each([[undefined], [NaN], [-Infinity]])('%s -> "—"', (input) => {
     expect(formatPercentChange(input)).toBe('—')
+  })
+})
+
+describe('percentChangeDirection', () => {
+  it.each([
+    [2.35, 'up'],
+    [0.01, 'up'],
+    [-0.36, 'down'],
+    [0, 'flat'],
+    [0.004, 'flat'],
+    [-0.004, 'flat'],
+    [undefined, 'flat'],
+    [NaN, 'flat'],
+  ])('%s -> %s', (input, expected) => {
+    expect(percentChangeDirection(input)).toBe(expected)
   })
 })

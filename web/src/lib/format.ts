@@ -38,3 +38,13 @@ export function formatPercentChange(value: number | undefined): string {
 
   return `${value > 0 ? '+' : '-'}${digits}%`
 }
+
+export type ChangeDirection = 'up' | 'down' | 'flat'
+
+/** Matches the displayed rounding: changes rendered as 0.00% are flat. */
+export function percentChangeDirection(value: number | undefined): ChangeDirection {
+  if (value === undefined || !Number.isFinite(value)) return 'flat'
+  if (Number(Math.abs(value).toFixed(2)) === 0) return 'flat'
+
+  return value > 0 ? 'up' : 'down'
+}
