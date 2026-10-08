@@ -48,3 +48,28 @@ export function percentChangeDirection(value: number | undefined): ChangeDirecti
 
   return value > 0 ? 'up' : 'down'
 }
+
+/** Formats an age; invalid, future, and sub-minute times count as recent. */
+export function formatAge(ageMs: number): string {
+  if (!Number.isFinite(ageMs) || ageMs < 60_000) return 'hace menos de 1 min'
+
+  const minutes = Math.floor(ageMs / 60_000)
+  if (minutes < 60) return `hace ${minutes} min`
+
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `hace ${hours} h`
+
+  return `hace ${Math.floor(hours / 24)} d`
+}
+
+/** Formats a retry delay by rounding up to a whole second or minute. */
+export function formatWait(ms: number): string {
+  if (!Number.isFinite(ms)) return 'unos instantes'
+
+  const seconds = Math.max(1, Math.ceil(ms / 1000))
+  if (seconds < 60) return `${seconds} ${seconds === 1 ? 'segundo' : 'segundos'}`
+
+  const minutes = Math.ceil(seconds / 60)
+
+  return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`
+}

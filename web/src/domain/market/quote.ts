@@ -39,3 +39,14 @@ export function quoteAgeMs(quote: Quote, now: number): number {
 export function isQuoteStale(quote: Quote, now: number, maxAgeMs: number): boolean {
   return quoteAgeMs(quote, now) > maxAgeMs
 }
+
+/** Timestamp of the newest quote in a set, or undefined when it is empty. */
+export function newestQuoteTimestamp(quotes: readonly Quote[]): number | undefined {
+  let newest: number | undefined
+
+  for (const quote of quotes) {
+    if (newest === undefined || quote.timestamp > newest) newest = quote.timestamp
+  }
+
+  return newest
+}

@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { Price } from '@/domain/shared/price'
 import {
   formatCompactUsd,
+  formatAge,
   formatPercentChange,
   formatUsdPrice,
   percentChangeDirection,
+  formatWait,
 } from '@/lib/format'
 
 describe('formatUsdPrice', () => {
@@ -69,5 +71,40 @@ describe('percentChangeDirection', () => {
     [NaN, 'flat'],
   ])('%s -> %s', (input, expected) => {
     expect(percentChangeDirection(input)).toBe(expected)
+  })
+})
+
+describe('formatAge', () => {
+  it.each([
+    [0, 'hace menos de 1 min'],
+    [59_999, 'hace menos de 1 min'],
+    [-5_000, 'hace menos de 1 min'],
+    [NaN, 'hace menos de 1 min'],
+    [60_000, 'hace 1 min'],
+    [179_000, 'hace 2 min'],
+    [3_599_999, 'hace 59 min'],
+    [3_600_000, 'hace 1 h'],
+    [86_399_999, 'hace 23 h'],
+    [86_400_000, 'hace 1 d'],
+    [3 * 86_400_000, 'hace 3 d'],
+  ])('%s ms -> %s', (input, expected) => {
+    expect(formatAge(input)).toBe(expected)
+  })
+})
+
+describe('formatWait', () => {
+  it.each([
+    [0, '1 segundo'],
+    [500, '1 segundo'],
+    [1_000, '1 segundo'],
+    [30_000, '30 segundos'],
+    [59_000, '59 segundos'],
+    [59_001, '1 minuto'],
+    [60_000, '1 minuto'],
+    [61_000, '2 minutos'],
+    [300_000, '5 minutos'],
+    [NaN, 'unos instantes'],
+  ])('%s ms -> %s', (input, expected) => {
+    expect(formatWait(input)).toBe(expected)
   })
 })
