@@ -1,12 +1,14 @@
+// src/features/markets/MarketsPage.tsx
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { MarketTable } from '@/features/markets/MarketTable'
 import { MarketListingUnavailableError } from '@/features/markets/marketQueries'
 import { useMarketListing } from '@/features/markets/useMarketListing'
-import { formatCompactUsd, formatPercentChange, formatUsdPrice } from '@/lib/format'
 
 export function MarketsPage() {
   const { data, error, isPending, isFetching, dataUpdatedAt, refetch } = useMarketListing()
 
+  // Provisional: muestra el `kind` crudo para diagnosticar. El paso 4 lo traduce.
   const failureKind =
     error instanceof MarketListingUnavailableError ? error.reason.kind : (error?.message ?? null)
 
@@ -14,7 +16,7 @@ export function MarketsPage() {
     <section className="space-y-6">
       <PageHeader
         title="Markets"
-        description="Versión provisional: top 250 de CoinGecko."
+        description="Top 250 criptomonedas por capitalización, datos de CoinGecko."
         actions={
           <button
             type="button"
@@ -42,29 +44,11 @@ export function MarketsPage() {
       {data ? (
         <div className="space-y-3">
           <p className="text-xs text-(--text-secondary)">
-            {data.quotes.length} cotizaciones ({data.skipped} descartadas). Actualizado:{' '}
-            {new Date(dataUpdatedAt).toLocaleTimeString()}
+            {data.skipped > 0 ? `${data.skipped} descartadas. ` : ''}
+            Actualizado: {new Date(dataUpdatedAt).toLocaleTimeString()}
           </p>
 
-          <ul className="divide-y divide-(--border) rounded-2xl border border-(--border) bg-(--surface)">
-            {data.quotes.map((quote) => (
-              <li
-                key={quote.assetId}
-                className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
-              >
-                <span className="font-medium">
-                  {quote.symbol} <span className="text-(--text-secondary)">{quote.name}</span>
-                </span>
-                <span className="font-mono tabular-nums">{formatUsdPrice(quote.price)}</span>
-                <span className="font-mono text-xs tabular-nums">
-                  {formatPercentChange(quote.change24hPercent)}
-                </span>
-                <span className="text-xs text-(--text-secondary)">
-                  Cap. {formatCompactUsd(quote.marketCap)}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <MarketTable quotes={data.quotes} />
         </div>
       ) : null}
     </section>
