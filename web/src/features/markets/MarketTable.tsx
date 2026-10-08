@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 
 import { ChangeIndicator } from '@/features/markets/ChangeIndicator'
+import { Sparkline } from '@/features/markets/Sparkline'
 import {
   DEFAULT_SORT,
   filterQuotes,
@@ -50,9 +51,10 @@ export function MarketTable({ quotes }: MarketTableProps) {
       </p>
 
       <div className="overflow-x-auto rounded-2xl border border-(--border) bg-(--surface)">
-        <table className="w-full min-w-176 text-sm">
+        <table className="w-full min-w-208 text-sm">
           <caption className="sr-only">
-            Criptomonedas con precio, cambio en 24 horas, capitalización y volumen
+            Criptomonedas con precio, cambio en 24 horas, capitalización, volumen y tendencia de 7
+            días
           </caption>
 
           <thead className="border-b border-(--border) text-xs text-(--text-secondary)">
@@ -83,13 +85,16 @@ export function MarketTable({ quotes }: MarketTableProps) {
                 direction={directionOf('volume24h')}
                 onSort={sortBy('volume24h')}
               />
+              <th scope="col" className="px-4 py-3 text-right font-medium">
+                7 días
+              </th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-(--border)">
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-(--text-secondary)">
+                <td colSpan={6} className="px-4 py-10 text-center text-(--text-secondary)">
                   Ningún activo coincide con «{query.trim()}».
                 </td>
               </tr>
@@ -110,6 +115,11 @@ export function MarketTable({ quotes }: MarketTableProps) {
                   </td>
                   <td className="px-4 py-3 text-right font-mono tabular-nums">
                     {formatCompactUsd(quote.volume24h)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end">
+                      <Sparkline values={quote.sparkline7d} />
+                    </div>
                   </td>
                 </tr>
               ))
