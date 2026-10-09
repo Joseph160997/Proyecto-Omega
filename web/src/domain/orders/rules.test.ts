@@ -5,7 +5,7 @@ import { Money } from '@/domain/shared/money'
 import { Price } from '@/domain/shared/price'
 import { Quantity } from '@/domain/shared/quantity'
 
-import type { Quote } from '@/domain/market/quote'
+import type { MarketQuote, Quote } from '@/domain/market/quote'
 import type { OrderRejection } from '@/domain/orders/rejection'
 import type { TradingConditions } from '@/domain/orders/rules'
 import type { Trade } from '@/domain/orders/trade'
@@ -78,6 +78,20 @@ describe('evaluateBuy', () => {
 
   it('accepts when the cash matches exactly', () => {
     const result = evaluateBuy(Quantity.of('0.5'), conditions(), Money.usd('50050.00'))
+
+    expect(result.ok).toBe(true)
+  })
+
+  it('accepts a MarketQuote: it has more data than the rule needs', () => {
+    const rich: MarketQuote = {
+      ...quote('100000'),
+      symbol: 'btc',
+      name: 'Bitcoin',
+      type: 'crypto',
+      change24hPercent: 2.35,
+    }
+
+    const result = evaluateBuy(Quantity.of('0.1'), conditions({ quote: rich }), Money.usd(100_000))
 
     expect(result.ok).toBe(true)
   })

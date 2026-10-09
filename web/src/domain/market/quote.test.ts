@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isQuoteStale, quoteAgeMs } from '@/domain/market/quote'
+import { isQuoteStale, newestQuoteTimestamp, quoteAgeMs } from '@/domain/market/quote'
 import { Price } from '@/domain/shared/price'
 
 import type { Quote } from '@/domain/market/quote'
@@ -28,5 +28,15 @@ describe('isQuoteStale', () => {
 
     expect(quoteAgeMs(quote, NOW)).toBe(-5_000)
     expect(isQuoteStale(quote, NOW, 60_000)).toBe(false)
+  })
+})
+
+describe('newestQuoteTimestamp', () => {
+  it('returns the latest timestamp regardless of order', () => {
+    expect(newestQuoteTimestamp([quoteAt(100), quoteAt(300), quoteAt(200)])).toBe(300)
+  })
+
+  it('returns undefined for an empty set', () => {
+    expect(newestQuoteTimestamp([])).toBeUndefined()
   })
 })

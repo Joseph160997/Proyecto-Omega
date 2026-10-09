@@ -42,6 +42,11 @@ export class Price {
     return this.value.equals(other.value)
   }
 
+  /** Negative if this < other, 0 if equal, positive if this > other. */
+  compareTo(other: Price): number {
+    return this.value.comparedTo(other.value)
+  }
+
   toString(): string {
     return this.value.toFixed()
   }
