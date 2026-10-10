@@ -9,7 +9,7 @@ export function AppShell() {
   useApplyTheme()
 
   return (
-    <div className="flex min-h-screen bg-(--bg) text-(--text-primary)">
+    <div className="flex min-h-screen bg-canvas bg-atmosphere text-fg">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-(--surface) focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"
