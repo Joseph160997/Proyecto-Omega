@@ -9,7 +9,7 @@ export function Topbar() {
   return (
     <header className="flex h-16 items-center justify-between gap-4 border-b border-(--border) bg-(--surface) px-4 md:px-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border) bg-(--bg) text-(--accent) lg:hidden">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border) bg-(--bg) text-accent lg:hidden">
           <CandlestickChart size={18} aria-hidden="true" />
         </span>
 

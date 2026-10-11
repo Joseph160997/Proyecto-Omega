@@ -1,4 +1,5 @@
 // src/features/markets/MarketsPage.tsx
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { newestQuoteTimestamp } from '@/domain/market/quote'
@@ -19,14 +20,9 @@ export function MarketsPage() {
         title="Markets"
         description="Top 250 criptomonedas por capitalización, datos de CoinGecko."
         actions={
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="rounded-lg border border-(--border) px-3 py-2 text-xs text-(--text-secondary) transition-colors hover:text-(--text-primary) disabled:opacity-50"
-          >
+          <Button size="sm" onClick={() => refetch()} loading={isFetching}>
             {isFetching ? 'Actualizando…' : 'Actualizar'}
-          </button>
+          </Button>
         }
       />
 
@@ -37,7 +33,7 @@ export function MarketsPage() {
       ) : null}
 
       {error && data ? (
-        <p role="alert" className="text-sm text-(--warning)">
+        <p role="alert" className="text-sm text-warning">
           No se pudo actualizar. {describeMarketError(error)} Se muestran los últimos datos
           recibidos.
         </p>
