@@ -73,3 +73,10 @@ export function formatWait(ms: number): string {
 
   return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`
 }
+
+/** Returns an uppercase first character for an asset avatar fallback. */
+export function initialOf(text: string): string {
+  const first = [...text.trim()][0]
+
+  return first === undefined ? '?' : first.toLocaleUpperCase()
+}

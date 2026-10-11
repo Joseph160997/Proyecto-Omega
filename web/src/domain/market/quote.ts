@@ -25,6 +25,7 @@ export interface MarketQuote extends Quote {
   readonly symbol: string
   readonly name: string
   readonly type: AssetType
+  readonly imageUrl?: string // URL https del logo; la UI usa un respaldo si falta o falla.
   readonly change24hPercent?: number // 2.35 significa +2.35%
   readonly volume24h?: number
   readonly sparkline7d?: readonly number[] // Prices from the last 7 days, for display only.

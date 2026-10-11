@@ -4,6 +4,7 @@ import { Price } from '@/domain/shared/price'
 import {
   formatCompactUsd,
   formatAge,
+  initialOf,
   formatPercentChange,
   formatUsdPrice,
   percentChangeDirection,
@@ -106,5 +107,18 @@ describe('formatWait', () => {
     [NaN, 'unos instantes'],
   ])('%s ms -> %s', (input, expected) => {
     expect(formatWait(input)).toBe(expected)
+  })
+})
+
+describe('initialOf', () => {
+  it.each([
+    ['btc', 'B'],
+    ['  eth', 'E'],
+    ['ñandú', 'Ñ'],
+    ['🚀moon', '🚀'],
+    ['', '?'],
+    ['   ', '?'],
+  ])('%j -> %s', (input, expected) => {
+    expect(initialOf(input)).toBe(expected)
   })
 })

@@ -1,7 +1,10 @@
-import { useId, useState } from 'react'
+import { useRef, useState } from 'react'
 
-import { ChangeIndicator } from '@/features/markets/ChangeIndicator'
-import { Sparkline } from '@/features/markets/Sparkline'
+import { AssetAvatar } from '@/components/ui/AssetAvatar'
+import { ChangeChip } from '@/components/ui/ChangeChip'
+import { Pagination } from '@/components/ui/Pagination'
+import { Panel } from '@/components/ui/Panel'
+import { SearchField } from '@/components/ui/SearchField'
 import {
   DEFAULT_SORT,
   filterQuotes,
@@ -9,8 +12,10 @@ import {
   nextSort,
   sortQuotes,
 } from '@/features/markets/marketTableLogic'
+import { Sparkline } from '@/features/markets/Sparkline'
 import { SortableHeader } from '@/features/markets/SortableHeader'
 import { formatCompactUsd, formatUsdPrice } from '@/lib/format'
+import { paginate } from '@/lib/pagination'
 
 import type { MarketQuote } from '@/domain/market/quote'
 import type { SortKey, SortState } from '@/features/markets/marketTableLogic'
@@ -22,52 +27,54 @@ interface MarketTableProps {
 export function MarketTable({ quotes }: MarketTableProps) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortState>(DEFAULT_SORT)
-  const [visibleCount, setVisibleCount] = useState(MARKET_PAGE_SIZE)
-  const searchId = useId()
+  const [page, setPage] = useState(1)
+  const topRef = useRef<HTMLDivElement>(null)
 
   const rows = sortQuotes(filterQuotes(quotes, query), sort)
-  const visibleRows = rows.slice(0, visibleCount)
-  const remaining = rows.length - visibleRows.length
+  const view = paginate(rows, page, MARKET_PAGE_SIZE)
 
   const directionOf = (key: SortKey) => (sort.key === key ? sort.direction : null)
+
   const handleQueryChange = (value: string) => {
     setQuery(value)
-    setVisibleCount(MARKET_PAGE_SIZE)
+    setPage(1)
   }
 
   const sortBy = (key: SortKey) => () => {
     setSort((current) => nextSort(current, key))
-    setVisibleCount(MARKET_PAGE_SIZE)
+    setPage(1)
   }
 
-  return (
-    <div className="space-y-3">
-      <div>
-        <label htmlFor={searchId} className="sr-only">
-          Buscar por nombre o símbolo
-        </label>
-        <input
-          id={searchId}
-          type="search"
-          value={query}
-          onChange={(event) => handleQueryChange(event.target.value)}
-          placeholder="Buscar por nombre o símbolo…"
-          className="w-full max-w-sm rounded-lg border border-(--border) bg-(--surface) px-3 py-2 text-sm placeholder:text-(--text-secondary)"
-        />
-      </div>
+  const goToPage = (next: number) => {
+    setPage(next)
+    topRef.current?.scrollIntoView({ block: 'start' })
+  }
 
-      <p role="status" className="text-xs text-(--text-secondary)">
-        {visibleRows.length} de {rows.length} {query.trim() === '' ? 'activos' : 'coincidencias'}
+  const noun = query.trim() === '' ? 'activos' : 'coincidencias'
+
+  return (
+    <div ref={topRef} className="space-y-3">
+      <SearchField
+        label="Buscar por nombre o símbolo"
+        placeholder="Buscar por nombre o símbolo…"
+        value={query}
+        onChange={handleQueryChange}
+      />
+
+      <p role="status" className="text-xs text-fg-muted">
+        {view.totalItems === 0
+          ? 'Sin resultados'
+          : `Mostrando ${view.from}–${view.to} de ${view.totalItems} ${noun}`}
       </p>
 
-      <div className="overflow-x-auto rounded-2xl border border-(--border) bg-(--surface)">
-        <table className="w-full min-w-208 text-sm">
+      <Panel padding="none" className="overflow-x-auto">
+        <table className="w-full min-w-[52rem] text-sm">
           <caption className="sr-only">
             Criptomonedas con precio, cambio en 24 horas, capitalización, volumen y tendencia de 7
             días
           </caption>
 
-          <thead className="border-b border-(--border) text-xs text-(--text-secondary)">
+          <thead className="border-b border-line text-xs text-fg-muted">
             <tr>
               <SortableHeader
                 label="Activo"
@@ -101,24 +108,29 @@ export function MarketTable({ quotes }: MarketTableProps) {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-(--border)">
-            {rows.length === 0 ? (
+          <tbody className="divide-y divide-line">
+            {view.totalItems === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-(--text-secondary)">
+                <td colSpan={6} className="px-4 py-10 text-center text-fg-muted">
                   Ningún activo coincide con «{query.trim()}».
                 </td>
               </tr>
             ) : (
-              visibleRows.map((quote) => (
-                <tr key={quote.assetId}>
+              view.items.map((quote) => (
+                <tr key={quote.assetId} className="transition-colors hover:bg-raised">
                   <th scope="row" className="px-4 py-3 text-left font-medium">
-                    {quote.name} <span className="text-(--text-secondary)">{quote.symbol}</span>
+                    <div className="flex items-center gap-3">
+                      <AssetAvatar symbol={quote.symbol} imageUrl={quote.imageUrl} />
+                      <span>
+                        {quote.name} <span className="text-fg-muted">{quote.symbol}</span>
+                      </span>
+                    </div>
                   </th>
                   <td className="px-4 py-3 text-right font-mono tabular-nums">
                     {formatUsdPrice(quote.price)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <ChangeIndicator value={quote.change24hPercent} />
+                    <ChangeChip value={quote.change24hPercent} />
                   </td>
                   <td className="px-4 py-3 text-right font-mono tabular-nums">
                     {formatCompactUsd(quote.marketCap)}
@@ -136,17 +148,15 @@ export function MarketTable({ quotes }: MarketTableProps) {
             )}
           </tbody>
         </table>
-      </div>
+      </Panel>
 
-      {remaining > 0 ? (
-        <button
-          type="button"
-          onClick={() => setVisibleCount((current) => current + MARKET_PAGE_SIZE)}
-          className="rounded-lg border border-(--border) px-4 py-2 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
-        >
-          Mostrar {Math.min(MARKET_PAGE_SIZE, remaining)} más ({remaining} restantes)
-        </button>
-      ) : null}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-xs text-fg-muted">
+          Página {view.page} de {view.totalPages}
+        </span>
+
+        <Pagination page={view.page} totalPages={view.totalPages} onPageChange={goToPage} />
+      </div>
     </div>
   )
 }
