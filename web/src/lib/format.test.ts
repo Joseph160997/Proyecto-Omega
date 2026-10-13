@@ -9,6 +9,7 @@ import {
   formatUsdPrice,
   percentChangeDirection,
   formatWait,
+  formatShare,
 } from '@/lib/format'
 
 describe('formatUsdPrice', () => {
@@ -120,5 +121,22 @@ describe('initialOf', () => {
     ['   ', '?'],
   ])('%j -> %s', (input, expected) => {
     expect(initialOf(input)).toBe(expected)
+  })
+})
+
+describe('formatShare', () => {
+  it.each([
+    [0.582, undefined, '58.2%'],
+    [0.5824, 1, '58.2%'],
+    [0.0359, 2, '3.59%'],
+    [0, 1, '0.0%'],
+    [1, 1, '100.0%'],
+    [0.00004, 2, '0.00%'],
+  ])('%s con %s decimales → %s', (fraction, digits, expected) => {
+    expect(formatShare(fraction, digits)).toBe(expected)
+  })
+
+  it.each([[undefined], [NaN], [Infinity], [-Infinity]])('%s → "—"', (value) => {
+    expect(formatShare(value)).toBe('—')
   })
 })
