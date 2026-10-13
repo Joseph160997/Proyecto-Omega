@@ -1,11 +1,11 @@
 // src/features/markets/MarketsPage.tsx
-import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { Button } from '@/components/ui/Button'
 import { newestQuoteTimestamp } from '@/domain/market/quote'
 import { DataFreshness } from '@/features/markets/DataFreshness'
-import { MarketTable } from '@/features/markets/MarketTable'
 import { describeMarketError } from '@/features/markets/marketErrors'
+import { MarketExplorer } from '@/features/markets/MarketExplorer'
 import { MarketTableSkeleton } from '@/features/markets/MarketTableSkeleton'
 import { useMarketListing } from '@/features/markets/useMarketListing'
 
@@ -40,7 +40,7 @@ export function MarketsPage() {
       ) : null}
 
       {data ? (
-        <div className="space-y-3">
+        <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <DataFreshness timestamp={timestamp} />
 
@@ -51,7 +51,7 @@ export function MarketsPage() {
             ) : null}
           </div>
 
-          <MarketTable quotes={data.quotes} />
+          <MarketExplorer quotes={data.quotes} />
         </div>
       ) : null}
     </section>
