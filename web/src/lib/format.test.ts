@@ -6,6 +6,7 @@ import {
   formatAge,
   initialOf,
   formatPercentChange,
+  formatShare,
   formatUsdPrice,
   percentChangeDirection,
   formatWait,
@@ -34,6 +35,9 @@ describe('formatCompactUsd', () => {
     [1719979725824, '$1.72T'],
     [27330667563, '$27.33B'],
     [950, '$950'],
+    [0, '$0'],
+    [170, '$170'],
+    [1500, '$1.5K'],
   ])('%s -> %s', (input, expected) => {
     expect(formatCompactUsd(input)).toBe(expected)
   })
@@ -120,5 +124,22 @@ describe('initialOf', () => {
     ['   ', '?'],
   ])('%j -> %s', (input, expected) => {
     expect(initialOf(input)).toBe(expected)
+  })
+})
+
+describe('formatShare', () => {
+  it.each([
+    [0.582, undefined, '58.2%'],
+    [0.5824, 1, '58.2%'],
+    [0.0359, 2, '3.59%'],
+    [0, 1, '0.0%'],
+    [1, 1, '100.0%'],
+    [0.00004, 2, '0.00%'],
+  ])('%s con %s decimales → %s', (fraction, digits, expected) => {
+    expect(formatShare(fraction, digits)).toBe(expected)
+  })
+
+  it.each([[undefined], [NaN], [Infinity], [-Infinity]])('%s → "—"', (value) => {
+    expect(formatShare(value)).toBe('—')
   })
 })

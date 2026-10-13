@@ -80,3 +80,10 @@ export function initialOf(text: string): string {
 
   return first === undefined ? '?' : first.toLocaleUpperCase()
 }
+
+/** Una proporción (0.582) como porcentaje sin signo: "58.2%". */
+export function formatShare(fraction: number | undefined, digits = 1): string {
+  if (fraction === undefined || !Number.isFinite(fraction)) return PLACEHOLDER
+
+  return `${(fraction * 100).toFixed(digits)}%`
+}
