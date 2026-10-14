@@ -4,9 +4,9 @@ import { formatPercentChange } from '@/lib/format'
 import type { ChangeDirection } from '@/lib/format'
 
 const COLOR: Record<ChangeDirection, string> = {
-  up: 'text-(--positive)',
-  down: 'text-(--negative)',
-  flat: 'text-(--text-secondary)',
+  up: 'text-up',
+  down: 'text-down',
+  flat: 'text-fg-muted',
 }
 
 interface SparklineProps {
@@ -21,7 +21,7 @@ export function Sparkline({ values, width = 96, height = 32 }: SparklineProps) {
   if (values === undefined || path === null) {
     return (
       <>
-        <span aria-hidden="true" className="text-(--text-secondary)">
+        <span aria-hidden="true" className="text-fg-muted">
           —
         </span>
         <span className="sr-only">No 7-day data</span>

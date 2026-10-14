@@ -59,17 +59,6 @@
   --card-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
 }
 
-/* Nombres antiguos, temporales: se borran al terminar el rediseño (paso 6). */
-:root {
-  --bg: var(--canvas);
-  --surface: var(--panel);
-  --border: var(--line);
-  --text-primary: var(--fg);
-  --text-secondary: var(--fg-muted);
-  --positive: var(--up);
-  --negative: var(--down);
-}
-
 /* Tipografía y radios: no cambian con el tema. */
 @theme static {
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
