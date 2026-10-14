@@ -17,6 +17,8 @@ export const CoinGeckoMarketItemSchema = z.object({
     .object({ price: z.array(z.number()) })
     .nullish()
     .catch(undefined),
+  // Decorative data: malformed logos should not invalidate the coin.
+  image: z.string().nullish().catch(undefined),
   // Forma ISO obligatoria: Date.parse es demasiado permisivo (acepta "1" como fecha).
   last_updated: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
 })

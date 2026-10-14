@@ -1,48 +1,51 @@
-import { CandlestickChart, Command, Moon, Sun } from 'lucide-react'
+import { CandlestickChart, Moon, Search, Sun } from 'lucide-react'
 
 import { useThemeStore } from '@/app/container'
+import { DataStatusChip } from '@/features/markets/DataStatusChip'
 
 export function Topbar() {
   const mode = useThemeStore((state) => state.mode)
   const toggle = useThemeStore((state) => state.toggle)
 
   return (
-    <header className="flex h-16 items-center justify-between gap-4 border-b border-(--border) bg-(--surface) px-4 md:px-6">
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border) bg-(--bg) text-(--accent) lg:hidden">
+    <header className="flex h-16 items-center gap-3 border-b border-line bg-panel px-4 md:px-6">
+      <div className="flex items-center gap-3 lg:hidden">
+        <span className="flex size-9 items-center justify-center rounded-xl bg-accent-fill text-on-accent">
           <CandlestickChart size={18} aria-hidden="true" />
         </span>
 
-        <div>
-          <p className="text-sm font-semibold text-(--text-primary)">Omega Markets</p>
-          <p className="text-xs text-(--text-secondary)">Terminal financiera simulada</p>
-        </div>
+        <p className="text-sm font-semibold text-fg">Omega Markets</p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          disabled
-          className="hidden items-center gap-2 rounded-lg border border-(--border) px-3 py-2 text-xs text-(--text-secondary) md:flex"
-        >
-          <Command size={14} aria-hidden="true" />
-          Command palette
-          <kbd className="rounded bg-(--bg) px-1 py-0.5 text-[10px]">Ctrl K</kbd>
-        </button>
+      <button
+        type="button"
+        disabled
+        title="Disponible próximamente"
+        className="hidden w-80 items-center gap-2.5 rounded-full border border-line bg-canvas px-4 py-2 text-sm text-fg-subtle md:flex"
+      >
+        <Search size={16} aria-hidden="true" />
+        Buscar activos, páginas o acciones…
+        <kbd className="ml-auto rounded-md bg-raised px-1.5 py-0.5 font-mono text-[11px] text-fg-muted">
+          Ctrl K
+        </kbd>
+      </button>
 
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={mode === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border) text-(--text-secondary) transition-colors hover:text-(--text-primary)"
-        >
-          {mode === 'dark' ? (
-            <Sun size={16} aria-hidden="true" />
-          ) : (
-            <Moon size={16} aria-hidden="true" />
-          )}
-        </button>
-      </div>
+      <div className="flex-1" />
+
+      <DataStatusChip className="hidden sm:inline-flex" />
+
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={mode === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
+        className="flex size-9 items-center justify-center rounded-xl border border-line text-fg-muted transition-colors hover:bg-raised hover:text-fg"
+      >
+        {mode === 'dark' ? (
+          <Sun size={16} aria-hidden="true" />
+        ) : (
+          <Moon size={16} aria-hidden="true" />
+        )}
+      </button>
     </header>
   )
 }

@@ -73,3 +73,17 @@ export function formatWait(ms: number): string {
 
   return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`
 }
+
+/** Returns an uppercase first character for an asset avatar fallback. */
+export function initialOf(text: string): string {
+  const first = [...text.trim()][0]
+
+  return first === undefined ? '?' : first.toLocaleUpperCase()
+}
+
+/** Una proporción (0.582) como porcentaje sin signo: "58.2%". */
+export function formatShare(fraction: number | undefined, digits = 1): string {
+  if (fraction === undefined || !Number.isFinite(fraction)) return PLACEHOLDER
+
+  return `${(fraction * 100).toFixed(digits)}%`
+}

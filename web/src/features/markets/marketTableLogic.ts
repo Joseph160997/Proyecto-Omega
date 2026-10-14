@@ -1,6 +1,17 @@
 import type { MarketQuote } from '@/domain/market/quote'
+import { turnoverRatio } from '@/features/markets/marketStatsLogic'
 
-export type SortKey = 'name' | 'price' | 'change24h' | 'marketCap' | 'volume24h'
+export const SORT_KEYS = [
+  'name',
+  'price',
+  'change24h',
+  'marketCap',
+  'volume24h',
+  'activity',
+] as const
+
+export type SortKey = (typeof SORT_KEYS)[number]
+
 export type SortDirection = 'asc' | 'desc'
 
 export interface SortState {
@@ -9,14 +20,15 @@ export interface SortState {
 }
 
 export const DEFAULT_SORT: SortState = { key: 'marketCap', direction: 'desc' }
-export const MARKET_PAGE_SIZE = 50
+export const MARKET_PAGE_SIZE = 20
 
-const FIRST_DIRECTION: Record<SortKey, SortDirection> = {
+export const FIRST_DIRECTION: Record<SortKey, SortDirection> = {
   name: 'asc',
   price: 'desc',
   change24h: 'desc',
   marketCap: 'desc',
   volume24h: 'desc',
+  activity: 'desc',
 }
 
 /** Returns the sort state produced by clicking a column. */
@@ -63,6 +75,7 @@ const COLUMNS: Record<SortKey, Column> = {
   change24h: numericColumn((quote) => quote.change24hPercent),
   marketCap: numericColumn((quote) => quote.marketCap),
   volume24h: numericColumn((quote) => quote.volume24h),
+  activity: numericColumn(turnoverRatio),
 }
 
 function compareIds(a: MarketQuote, b: MarketQuote): number {

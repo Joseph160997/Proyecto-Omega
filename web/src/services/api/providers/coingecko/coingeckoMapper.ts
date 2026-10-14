@@ -16,6 +16,19 @@ import type { Result } from '@/domain/shared/result'
 
 const INVALID_RESPONSE: MarketDataError = { kind: 'INVALID_RESPONSE' }
 
+/** Only HTTPS logos are accepted because this external value is used as an image source. */
+function safeHttpsUrl(value: string | null | undefined): string | undefined {
+  if (value === undefined || value === null) return undefined
+
+  try {
+    const url = new URL(value)
+
+    return url.protocol === 'https:' ? url.href : undefined
+  } catch {
+    return undefined
+  }
+}
+
 function mapItem(raw: unknown, assetId: string): Result<MarketQuote, MarketDataError> {
   const parsed = CoinGeckoMarketItemSchema.safeParse(raw)
   if (!parsed.success) return err(INVALID_RESPONSE)
@@ -39,6 +52,7 @@ function mapItem(raw: unknown, assetId: string): Result<MarketQuote, MarketDataE
     symbol: item.symbol.toUpperCase(),
     name: item.name,
     type: 'crypto',
+    imageUrl: safeHttpsUrl(item.image),
     change24hPercent: item.price_change_percentage_24h ?? undefined,
     volume24h: item.total_volume ?? undefined,
     sparkline7d: prices !== undefined && prices.length > 0 ? prices : undefined,

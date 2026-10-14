@@ -2,48 +2,121 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Tokens de color. Claro por defecto; .dark sobrescribe los mismos nombres.
+ * Todo par de texto/superficie se verifica en src/styles/tokens.test.ts.
+ */
 :root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --border: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --accent: #0ea5e9;
-  --positive: #059669;
-  --negative: #e11d48;
-  --warning: #d97706;
-  --info: #2563eb;
+  --canvas: #f6f3ee;
+  --sidebar: #fbf9f5;
+  --panel: #ffffff;
+  --raised: #f1ece4;
+  --line: rgb(60 40 10 / 0.13);
+
+  --fg: #1c1812;
+  --fg-muted: #5c5446;
+  --fg-subtle: #6c6254;
+
+  /* accent sirve para texto, iconos, bordes y foco. accent-fill, para rellenos. */
+  --accent: #8a5a00;
+  --accent-fill: #e8b04b;
+  --on-accent: #1c1305;
+
+  --up: #0a6945;
+  --down: #ae3020;
+  --up-soft: rgb(10 105 69 / 0.1);
+  --down-soft: rgb(174 48 32 / 0.09);
+  --warning: #9a4506;
+  --info: #1d5fbf;
+
+  --glow: rgb(232 176 75 / 0.2);
+  --card-shadow: 0 1px 2px rgb(60 40 10 / 0.06), 0 10px 24px -14px rgb(60 40 10 / 0.18);
 }
 
 .dark {
-  --bg: #05070d;
-  --surface: #0b1220;
-  --border: #1e293b;
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --accent: #22d3ee;
-  --positive: #34d399;
-  --negative: #fb7185;
-  --warning: #fbbf24;
-  --info: #38bdf8;
+  --canvas: #0c0b0a;
+  --sidebar: #100f0d;
+  --panel: #171513;
+  --raised: #201d1a;
+  --line: rgb(255 244 230 / 0.09);
+
+  --fg: #f1ece4;
+  --fg-muted: #b2aa9d;
+  --fg-subtle: #8f877a;
+
+  --accent: #e8b04b;
+  --accent-fill: #e8b04b;
+  --on-accent: #16110a;
+
+  --up: #5bd9a4;
+  --down: #ff7a6b;
+  --up-soft: rgb(91 217 164 / 0.14);
+  --down-soft: rgb(255 122 107 / 0.14);
+  --warning: #ff9a5c;
+  --info: #7ab8ff;
+
+  --glow: rgb(232 176 75 / 0.13);
+  --card-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+/* Tipografía y radios: no cambian con el tema. */
+@theme static {
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-card: 1rem;
+  --animate-toast-in: toast-in 0.2s ease-out;
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Utilidades de color: bg-panel, text-fg-muted, border-line, text-up... */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-sidebar: var(--sidebar);
+  --color-panel: var(--panel);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-on-accent: var(--on-accent);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --color-up-soft: var(--up-soft);
+  --color-down-soft: var(--down-soft);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --shadow-card: var(--card-shadow);
+}
+
+/* Resplandor tenue arriba de la pantalla: da atmósfera sin ser un efecto. */
+@utility bg-atmosphere {
+  background-image: radial-gradient(70% 100% at 50% 0, var(--glow), transparent);
+  background-repeat: no-repeat;
+  background-size: 100% 340px;
 }
 
 * {
-  border-color: var(--border);
+  border-color: var(--line);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--bg);
-  color: var(--text-primary);
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  background-color: var(--canvas);
+  color: var(--fg);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -56,7 +129,22 @@ textarea {
   color: inherit;
 }
 
+::selection {
+  background: color-mix(in oklab, var(--accent-fill) 35%, transparent);
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

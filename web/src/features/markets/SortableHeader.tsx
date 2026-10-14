@@ -22,7 +22,7 @@ export function SortableHeader({ label, direction, onSort, align = 'right' }: So
       <button
         type="button"
         onClick={onSort}
-        className="inline-flex items-center gap-1 rounded-md transition-colors hover:text-(--text-primary)"
+        className="inline-flex items-center gap-1 rounded-md transition-colors hover:text-fg"
       >
         {label}
         <Icon size={14} aria-hidden="true" />

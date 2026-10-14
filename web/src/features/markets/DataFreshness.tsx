@@ -13,7 +13,7 @@ export function DataFreshness({ timestamp }: DataFreshnessProps) {
   const clock = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
   return (
-    <p className="text-xs text-(--text-secondary)">
+    <p className="text-xs text-fg-muted">
       Precios de las {clock} ({formatAge(now - timestamp)})
     </p>
   )

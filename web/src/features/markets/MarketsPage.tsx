@@ -1,15 +1,20 @@
 // src/features/markets/MarketsPage.tsx
 import { EmptyState } from '@/components/feedback/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { Button } from '@/components/ui/Button'
+import { StatusChip } from '@/components/ui/StatusChip'
 import { newestQuoteTimestamp } from '@/domain/market/quote'
 import { DataFreshness } from '@/features/markets/DataFreshness'
-import { MarketTable } from '@/features/markets/MarketTable'
 import { describeMarketError } from '@/features/markets/marketErrors'
+import { MarketExplorer } from '@/features/markets/MarketExplorer'
 import { MarketTableSkeleton } from '@/features/markets/MarketTableSkeleton'
+import { useRefreshFailureToast } from '@/features/markets/useRefreshFailureToast'
 import { useMarketListing } from '@/features/markets/useMarketListing'
 
 export function MarketsPage() {
-  const { data, error, isPending, isFetching, refetch } = useMarketListing()
+  const { data, error, isPending, isFetching, isRefetchError, refetch } = useMarketListing()
+
+  useRefreshFailureToast({ isRefetchError, error, refetch })
 
   const timestamp = data ? newestQuoteTimestamp(data.quotes) : undefined
 
@@ -19,14 +24,9 @@ export function MarketsPage() {
         title="Markets"
         description="Top 250 criptomonedas por capitalización, datos de CoinGecko."
         actions={
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="rounded-lg border border-(--border) px-3 py-2 text-xs text-(--text-secondary) transition-colors hover:text-(--text-primary) disabled:opacity-50"
-          >
+          <Button size="sm" onClick={() => refetch()} loading={isFetching}>
             {isFetching ? 'Actualizando…' : 'Actualizar'}
-          </button>
+          </Button>
         }
       />
 
@@ -36,26 +36,25 @@ export function MarketsPage() {
         <EmptyState title="No se pudo cargar el mercado" description={describeMarketError(error)} />
       ) : null}
 
-      {error && data ? (
-        <p role="alert" className="text-sm text-(--warning)">
-          No se pudo actualizar. {describeMarketError(error)} Se muestran los últimos datos
-          recibidos.
-        </p>
-      ) : null}
-
       {data ? (
-        <div className="space-y-3">
+        <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <DataFreshness timestamp={timestamp} />
 
+            {isRefetchError ? (
+              <StatusChip tone="warn">
+                No se pudo actualizar · se muestran los últimos datos
+              </StatusChip>
+            ) : null}
+
             {data.skipped > 0 ? (
-              <p className="text-xs text-(--text-secondary)">
+              <p className="text-xs text-fg-muted">
                 {data.skipped} activos descartados por datos inválidos.
               </p>
             ) : null}
           </div>
 
-          <MarketTable quotes={data.quotes} />
+          <MarketExplorer quotes={data.quotes} />
         </div>
       ) : null}
     </section>

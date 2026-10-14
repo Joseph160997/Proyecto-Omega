@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest'
 import { Price } from '@/domain/shared/price'
 import {
   DEFAULT_SORT,
+  FIRST_DIRECTION,
   filterQuotes,
   nextSort,
+  SORT_KEYS,
   sortQuotes,
 } from '@/features/markets/marketTableLogic'
 
@@ -30,6 +32,8 @@ function quote(
     ...options,
   }
 }
+
+const ids = (quotes: readonly MarketQuote[]) => quotes.map((item) => item.assetId)
 
 describe('nextSort', () => {
   it('defaults to market capitalization descending', () => {
@@ -178,5 +182,33 @@ describe('sortQuotes', () => {
     sortQuotes(quotes, { key: 'price', direction: 'asc' })
 
     expect(quotes.map((item) => item.assetId)).toEqual(before)
+  })
+})
+
+describe('activity sorting', () => {
+  const calm = quote('crypto:calm', 'Calm', '1', { volume24h: 10, marketCap: 1000 })
+  const busy = quote('crypto:busy', 'Busy', '1', { volume24h: 300, marketCap: 1000 })
+  const unknown = quote('crypto:unknown', 'Unknown', '1', { volume24h: 50 })
+
+  it('sorts volume divided by market cap and keeps missing values last', () => {
+    const all = [calm, unknown, busy]
+
+    expect(ids(sortQuotes(all, { key: 'activity', direction: 'desc' }))).toEqual([
+      'crypto:busy',
+      'crypto:calm',
+      'crypto:unknown',
+    ])
+    expect(ids(sortQuotes(all, { key: 'activity', direction: 'asc' }))).toEqual([
+      'crypto:calm',
+      'crypto:busy',
+      'crypto:unknown',
+    ])
+  })
+
+  it('defines an initial direction for every sortable column', () => {
+    SORT_KEYS.forEach((key) => {
+      expect(['asc', 'desc']).toContain(FIRST_DIRECTION[key])
+    })
+    expect(FIRST_DIRECTION.activity).toBe('desc')
   })
 })

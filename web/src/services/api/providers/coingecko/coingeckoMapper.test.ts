@@ -261,3 +261,37 @@ describe('7-day sparkline mapping', () => {
     expect(result.ok && result.value.quotes[0]?.sparkline7d).toEqual([1, 2, 3])
   })
 })
+
+describe('coin logo mapping', () => {
+  it('maps the HTTPS logo URL from the real response', () => {
+    const result = mapCoinGeckoMarkets(COINGECKO_MARKETS_FIXTURE, ONLY_BTC)
+
+    expect(result.quotes[0]?.imageUrl).toBe(
+      'https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400',
+    )
+  })
+
+  it.each([
+    ['http', 'http://example.com/a.png'],
+    ['javascript', 'javascript:alert(1)'],
+    ['data', 'data:image/png;base64,AAAA'],
+    ['non-URL text', 'not a URL'],
+    ['empty', ''],
+    ['null', null],
+    ['number', 42],
+  ])('ignores an invalid logo (%s) without invalidating the coin', (_label, image) => {
+    const result = mapCoinGeckoMarkets(bitcoinWith({ image }), ONLY_BTC)
+
+    expect(result.failures).toEqual([])
+    expect(result.quotes).toHaveLength(1)
+    expect(result.quotes[0]?.imageUrl).toBeUndefined()
+  })
+
+  it('preserves logos in listings', () => {
+    const result = mapCoinGeckoListing(COINGECKO_MARKETS_FIXTURE)
+
+    expect(result.ok && result.value.quotes.every((quote) => quote.imageUrl !== undefined)).toBe(
+      true,
+    )
+  })
+})
