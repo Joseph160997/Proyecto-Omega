@@ -28,8 +28,8 @@ const status = () => screen.getByRole('status')
 const firstRowName = () => screen.getAllByRole('rowheader')[0]
 const searchBox = () => screen.getByRole('searchbox', { name: 'Buscar por nombre o símbolo' })
 
-describe('MarketExplorer: paginación', () => {
-  it('muestra la primera página de 20 filas', () => {
+describe('MarketExplorer: pagination', () => {
+  it('shows the first page with 20 rows', () => {
     renderExplorer()
 
     expect(status()).toHaveTextContent('Mostrando 1–20 de 45 activos')
@@ -37,7 +37,7 @@ describe('MarketExplorer: paginación', () => {
     expect(screen.getByText('Página 1 de 3')).toBeInTheDocument()
   })
 
-  it('cambiar de página actualiza la URL, el contenido y sube al inicio de la tabla', async () => {
+  it('changing pages updates the URL and content, then scrolls to the table top', async () => {
     const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView')
     const { router, user } = renderExplorer()
 
@@ -49,22 +49,22 @@ describe('MarketExplorer: paginación', () => {
     expect(scrollIntoView).toHaveBeenCalled()
   })
 
-  it('una página fuera de rango en la URL se corrige a la última', () => {
+  it('an out-of-range page in the URL is clamped to the last page', () => {
     renderExplorer('/markets?page=99')
 
     expect(status()).toHaveTextContent('Mostrando 41–45 de 45 activos')
     expect(screen.getByRole('button', { name: 'Página 3' })).toHaveAttribute('aria-current', 'page')
   })
 
-  it('con una sola página no hay paginación', () => {
+  it('hides pagination when there is only one page', () => {
     renderExplorer('/markets', makeMarket(15))
 
     expect(screen.queryByRole('navigation', { name: 'Paginación' })).not.toBeInTheDocument()
   })
 })
 
-describe('MarketExplorer: búsqueda', () => {
-  it('filtra, reemplaza la entrada del historial y oculta los tops', async () => {
+describe('MarketExplorer: search', () => {
+  it('filters, replaces the history entry, and hides the top cards', async () => {
     const { router, user } = renderExplorer()
 
     await user.type(searchBox(), 'coin1')
@@ -76,7 +76,7 @@ describe('MarketExplorer: búsqueda', () => {
     expect(screen.queryByRole('heading', { name: 'Ganadores 24 h' })).not.toBeInTheDocument()
   })
 
-  it('buscar vuelve a la primera página', async () => {
+  it('searching returns to the first page', async () => {
     const { router, user } = renderExplorer('/markets?page=3')
 
     await user.type(searchBox(), 'coin')
@@ -85,7 +85,7 @@ describe('MarketExplorer: búsqueda', () => {
     expect(status()).toHaveTextContent('Mostrando 1–20 de 45 coincidencias')
   })
 
-  it('sin coincidencias explica qué se buscó', async () => {
+  it('explains the search when there are no matches', async () => {
     const { user } = renderExplorer()
 
     await user.type(searchBox(), 'zzz')
@@ -94,7 +94,7 @@ describe('MarketExplorer: búsqueda', () => {
     expect(status()).toHaveTextContent('Sin resultados')
   })
 
-  it('se puede editar en medio del texto sin que el cursor salte', async () => {
+  it('allows editing in the middle of the text without moving the cursor', async () => {
     const { user } = renderExplorer()
     const input = searchBox()
 
@@ -104,7 +104,7 @@ describe('MarketExplorer: búsqueda', () => {
     expect(input).toHaveValue('aXb')
   })
 
-  it('el botón de borrar limpia el campo y la URL, y devuelve el foco', async () => {
+  it('the clear button resets the field and URL, then restores focus', async () => {
     const { router, user } = renderExplorer('/markets?q=coin1')
 
     await user.click(screen.getByRole('button', { name: 'Borrar búsqueda' }))
@@ -114,7 +114,7 @@ describe('MarketExplorer: búsqueda', () => {
     expect(searchBox()).toHaveFocus()
   })
 
-  it('el campo sigue a la URL cuando cambia por otra causa (Atrás, otro enlace)', async () => {
+  it('the field follows URL changes from other navigation (back or another link)', async () => {
     const { router } = renderExplorer('/markets?q=coin1')
 
     expect(searchBox()).toHaveValue('coin1')
@@ -126,7 +126,7 @@ describe('MarketExplorer: búsqueda', () => {
     await waitFor(() => expect(searchBox()).toHaveValue('coin1'))
   })
 
-  it('no recorta los espacios mientras se escribe', async () => {
+  it('does not trim spaces while typing', async () => {
     const { user } = renderExplorer()
     const input = searchBox()
 
@@ -136,8 +136,8 @@ describe('MarketExplorer: búsqueda', () => {
   })
 })
 
-describe('MarketExplorer: orden', () => {
-  it('hacer clic en una columna ordena, marca aria-sort y alterna la dirección', async () => {
+describe('MarketExplorer: sorting', () => {
+  it('clicking a column sorts, sets aria-sort, and toggles direction', async () => {
     const { router, user } = renderExplorer()
     const header = () => screen.getByRole('columnheader', { name: /Precio/ })
 
@@ -153,7 +153,7 @@ describe('MarketExplorer: orden', () => {
     expect(firstRowName()).toHaveAccessibleName(/^coin01/)
   })
 
-  it('ordenar vuelve a la primera página', async () => {
+  it('sorting returns to the first page', async () => {
     const { router, user } = renderExplorer('/markets?page=2')
 
     await user.click(screen.getByRole('button', { name: /Precio/ }))
@@ -162,8 +162,8 @@ describe('MarketExplorer: orden', () => {
   })
 })
 
-describe('MarketExplorer: vistas', () => {
-  it('cambiar de vista filtra, usa su orden y marca la vista actual', async () => {
+describe('MarketExplorer: views', () => {
+  it('switching views filters, applies its sort, and marks the current view', async () => {
     const { router, user } = renderExplorer()
 
     await user.click(screen.getByRole('link', { name: 'Ganadores 24 h' }))
@@ -178,7 +178,7 @@ describe('MarketExplorer: vistas', () => {
     expect(firstRowName()).toHaveAccessibleName(/^coin45/)
   })
 
-  it('cambiar de vista conserva la búsqueda', async () => {
+  it('switching views preserves the search', async () => {
     const { router, user } = renderExplorer('/markets?q=coin')
 
     await user.click(screen.getByRole('link', { name: 'Perdedores 24 h' }))
@@ -186,7 +186,7 @@ describe('MarketExplorer: vistas', () => {
     await waitFor(() => expect(router.state.location.search).toBe('?view=losers&q=coin'))
   })
 
-  it('"Ver todo" de una tarjeta lleva a la lista completa de esa vista', async () => {
+  it('a card’s View all link opens the full list for that view', async () => {
     const { router, user } = renderExplorer()
 
     expect(screen.getByRole('link', { name: 'Ver todo: Mayor volumen' })).toHaveAttribute(
@@ -203,7 +203,7 @@ describe('MarketExplorer: vistas', () => {
     )
   })
 
-  it('una vista vacía lo dice', () => {
+  it('shows a message for an empty view', () => {
     renderExplorer(
       '/markets?view=gainers',
       makeMarket(1).map((quote) => ({ ...quote, change24hPercent: -2 })),
@@ -213,8 +213,8 @@ describe('MarketExplorer: vistas', () => {
   })
 })
 
-describe('MarketExplorer: resumen y tarjetas', () => {
-  it('en la vista principal se ven el resumen y las cuatro tarjetas', () => {
+describe('MarketExplorer: summary and top cards', () => {
+  it('shows the summary and four top cards in the main view', () => {
     renderExplorer()
 
     expect(screen.getByRole('region', { name: 'Resumen del mercado' })).toBeInTheDocument()
@@ -233,7 +233,7 @@ describe('MarketExplorer: resumen y tarjetas', () => {
     ['otra vista', '/markets?view=losers'],
     ['una búsqueda', '/markets?q=coin'],
     ['la segunda página', '/markets?page=2'],
-  ])('las tarjetas se ocultan con %s, pero el resumen se queda', (_label, entry) => {
+  ])('hides the cards for %s while keeping the summary visible', (_label, entry) => {
     renderExplorer(entry)
 
     expect(screen.queryByRole('heading', { name: 'Ganadores 24 h' })).not.toBeInTheDocument()

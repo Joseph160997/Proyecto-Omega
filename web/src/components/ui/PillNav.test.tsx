@@ -18,7 +18,7 @@ const renderNav = (currentId: string) =>
   )
 
 describe('PillNav', () => {
-  it('es una navegación con nombre y un enlace por elemento', () => {
+  it('is a named navigation with one link per item', () => {
     renderNav('a')
 
     expect(screen.getByRole('navigation', { name: 'Vistas' })).toBeInTheDocument()
@@ -26,14 +26,14 @@ describe('PillNav', () => {
     expect(screen.getByRole('link', { name: 'Beta' })).toHaveAttribute('href', '/x?view=b')
   })
 
-  it('solo el elemento actual lleva aria-current', () => {
+  it('only the current item has aria-current', () => {
     renderNav('b')
 
     expect(screen.getByRole('link', { name: 'Beta' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Alfa' })).not.toHaveAttribute('aria-current')
   })
 
-  it('si el actual no existe, ninguno queda marcado', () => {
+  it('marks no item when the current id does not exist', () => {
     renderNav('zzz')
 
     for (const link of screen.getAllByRole('link')) {

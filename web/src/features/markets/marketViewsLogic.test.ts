@@ -15,7 +15,7 @@ import type { MarketQuote } from '@/domain/market/quote'
 const ids = (quotes: readonly MarketQuote[]) => quotes.map((quote) => quote.assetId)
 
 describe('MARKET_VIEWS', () => {
-  it('tiene una vista por cada id, con su id y una etiqueta distinta', () => {
+  it('defines a view for every id with a matching id and unique label', () => {
     expect(Object.keys(MARKET_VIEWS).sort()).toEqual([...MARKET_VIEW_IDS].sort())
 
     const labels = MARKET_VIEW_IDS.map((id) => MARKET_VIEWS[id].label)
@@ -27,7 +27,7 @@ describe('MARKET_VIEWS', () => {
     })
   })
 
-  it('el orden por defecto de cada vista usa una columna válida', () => {
+  it('each view’s default sort uses a valid column', () => {
     MARKET_VIEW_IDS.forEach((id) => {
       expect(SORT_KEYS).toContain(MARKET_VIEWS[id].sort.key)
     })
@@ -35,7 +35,7 @@ describe('MARKET_VIEWS', () => {
 })
 
 describe('applyView', () => {
-  it('"all" conserva todo y ordena por capitalización, lo que no tiene dato al final', () => {
+  it('"all" keeps every asset and sorts by market cap, with missing values last', () => {
     expect(ids(applyView(SAMPLE_QUOTES, 'all'))).toEqual([
       'crypto:btc',
       'crypto:eth',
@@ -46,16 +46,16 @@ describe('applyView', () => {
     ])
   })
 
-  it('"gainers" solo incluye los que suben de forma visible, de mayor a menor', () => {
+  it('"gainers" includes only visible gainers, ordered from highest to lowest', () => {
     // ada sube 0.004 %: se ve 0.00%, es plano y no entra.
     expect(ids(applyView(SAMPLE_QUOTES, 'gainers'))).toEqual(['crypto:eth', 'crypto:btc'])
   })
 
-  it('"losers" solo incluye los que bajan, del que más cae al que menos', () => {
+  it('"losers" includes only decliners, from the largest drop to the smallest', () => {
     expect(ids(applyView(SAMPLE_QUOTES, 'losers'))).toEqual(['crypto:sol', 'crypto:xrp'])
   })
 
-  it('"volume" excluye los que no tienen volumen, de mayor a menor', () => {
+  it('"volume" excludes assets without volume and sorts descending', () => {
     expect(ids(applyView(SAMPLE_QUOTES, 'volume'))).toEqual([
       'crypto:eth',
       'crypto:sol',
@@ -64,7 +64,7 @@ describe('applyView', () => {
     ])
   })
 
-  it('"active" ordena por volumen / capitalización y excluye lo no calculable', () => {
+  it('"active" sorts by volume / market cap and excludes uncalculated values', () => {
     // sol 0.4, eth 0.2, xrp 0.05, btc 0.02; ada (sin volumen) y new (sin datos) fuera.
     expect(ids(applyView(SAMPLE_QUOTES, 'active'))).toEqual([
       'crypto:sol',
@@ -74,7 +74,7 @@ describe('applyView', () => {
     ])
   })
 
-  it('no modifica el array recibido', () => {
+  it('does not mutate the input array', () => {
     const before = ids(SAMPLE_QUOTES)
 
     MARKET_VIEW_IDS.forEach((id) => applyView(SAMPLE_QUOTES, id))
@@ -84,16 +84,16 @@ describe('applyView', () => {
 })
 
 describe('topOf', () => {
-  it('por defecto devuelve las primeras 5', () => {
+  it('returns the first five items by default', () => {
     expect(TOP_COUNT).toBe(5)
     expect(topOf(SAMPLE_QUOTES, 'all')).toHaveLength(5)
   })
 
-  it('devuelve menos si la vista no tiene tantos', () => {
+  it('returns fewer items when the view has fewer than the requested count', () => {
     expect(topOf(SAMPLE_QUOTES, 'gainers', 5)).toHaveLength(2)
   })
 
-  it('una tarjeta es exactamente el principio de la lista completa de su vista', () => {
+  it('each card is exactly the beginning of its full view list', () => {
     MARKET_VIEW_IDS.forEach((id) => {
       expect(ids(topOf(SAMPLE_QUOTES, id, 3))).toEqual(
         ids(applyView(SAMPLE_QUOTES, id).slice(0, 3)),

@@ -21,7 +21,7 @@ import type { SortState } from '@/features/markets/marketTableLogic'
 const parse = (queryString: string) => parseMarketQuery(new URLSearchParams(queryString))
 
 describe('parseMarketQuery', () => {
-  it('sin parámetros es el estado por defecto', () => {
+  it('uses the default state when there are no parameters', () => {
     expect(parse('')).toEqual(defaultMarketQuery())
   })
 
@@ -40,7 +40,7 @@ describe('parseMarketQuery', () => {
     expect(state.sort).toEqual(MARKET_VIEWS[state.view].sort)
   })
 
-  describe('orden', () => {
+  describe('sorting', () => {
     const defaultSort = MARKET_VIEWS.all.sort
 
     const cases: Array<[string, SortState]> = [
@@ -58,7 +58,7 @@ describe('parseMarketQuery', () => {
     })
   })
 
-  describe('página', () => {
+  describe('pagination', () => {
     const cases: Array<[string, number]> = [
       ['page=3', 3],
       ['page=1', 1],
@@ -77,40 +77,40 @@ describe('parseMarketQuery', () => {
     })
   })
 
-  describe('búsqueda', () => {
-    it('decodifica espacios y caracteres especiales', () => {
+  describe('search', () => {
+    it('decodes spaces and special characters', () => {
       expect(parse('q=bit%20coin').search).toBe('bit coin')
       expect(parse('q=a+b').search).toBe('a b')
     })
 
-    it('no recorta los espacios (el campo no debe perderlos mientras se escribe)', () => {
+    it('does not trim spaces while typing', () => {
       expect(parse('q=%20bit%20').search).toBe(' bit ')
     })
 
-    it('limita el largo', () => {
+    it('limits the length', () => {
       expect(parse(`q=${'a'.repeat(100)}`).search).toHaveLength(64)
     })
 
-    it('con el parámetro repetido usa el primero', () => {
+    it('uses the first value for a repeated parameter', () => {
       expect(parse('q=a&q=b').search).toBe('a')
     })
 
-    it('sin valor es vacío', () => {
+    it('uses an empty string when there is no value', () => {
       expect(parse('q=').search).toBe('')
     })
   })
 })
 
 describe('toSearchParams', () => {
-  it('el estado por defecto no escribe nada', () => {
+  it('does not serialize the default state', () => {
     expect(toSearchParams(defaultMarketQuery()).toString()).toBe('')
   })
 
-  it('una vista con su orden por defecto solo escribe la vista', () => {
+  it('serializes only the view when it uses its default sort', () => {
     expect(toSearchParams(defaultMarketQuery('gainers')).toString()).toBe('view=gainers')
   })
 
-  it('escribe todo lo que no es el valor por defecto, en un orden estable', () => {
+  it('serializes non-default values in a stable order', () => {
     const state = withPage(withSort(withSearch(defaultMarketQuery('gainers'), 'e'), 'price'), 2)
 
     expect(toSearchParams(state).toString()).toBe('view=gainers&q=e&sort=price&dir=desc&page=2')
@@ -130,7 +130,7 @@ describe('toSearchParams', () => {
     ['todo junto', withPage(withSort(withSearch(defaultMarketQuery('volume'), 'e'), 'name'), 2)],
   ]
 
-  it.each(roundTrip)('serializar y volver a leer conserva el estado: %s', (_label, state) => {
+  it.each(roundTrip)('serialization round-trips the state: %s', (_label, state) => {
     expect(parseMarketQuery(toSearchParams(state))).toEqual(state)
   })
 })
@@ -146,7 +146,7 @@ describe('marketHref', () => {
   })
 })
 
-describe('acciones del usuario', () => {
+describe('user actions', () => {
   const busy: MarketQueryState = {
     view: 'all',
     search: 'x',
@@ -154,7 +154,7 @@ describe('acciones del usuario', () => {
     page: 4,
   }
 
-  it('cambiar de vista usa el orden de la vista, vuelve a la página 1 y conserva la búsqueda', () => {
+  it('switching views applies that view’s sort, resets the page, and preserves the search', () => {
     expect(withView(busy, 'losers')).toEqual({
       view: 'losers',
       search: 'x',
@@ -163,19 +163,19 @@ describe('acciones del usuario', () => {
     })
   })
 
-  it('buscar vuelve a la página 1 y limita el largo', () => {
+  it('searching resets the page and limits the length', () => {
     expect(withSearch(busy, 'sol').page).toBe(1)
     expect(withSearch(busy, 'a'.repeat(100)).search).toHaveLength(64)
   })
 
-  it('ordenar alterna la dirección en la misma columna y vuelve a la página 1', () => {
+  it('sorting toggles direction on the same column and resets the page', () => {
     const result = withSort(busy, 'price')
 
     expect(result.sort).toEqual({ key: 'price', direction: 'desc' })
     expect(result.page).toBe(1)
   })
 
-  it('ordenar por otra columna usa su primera dirección', () => {
+  it('sorting by another column uses its initial direction', () => {
     expect(withSort(busy, 'name').sort).toEqual({ key: 'name', direction: 'asc' })
   })
 
@@ -190,7 +190,7 @@ describe('acciones del usuario', () => {
     expect(withPage(busy, page).page).toBe(expected)
   })
 
-  it('no modifica el estado original', () => {
+  it('does not mutate the original state', () => {
     const before = { ...busy }
 
     withView(busy, 'gainers')
@@ -206,7 +206,7 @@ describe('selectRows', () => {
   const ids = (state: MarketQueryState) =>
     selectRows(SAMPLE_QUOTES, state).map((quote) => quote.assetId)
 
-  it('con el estado por defecto equivale a la vista completa', () => {
+  it('matches the full view with the default state', () => {
     expect(ids(defaultMarketQuery())).toEqual([
       'crypto:btc',
       'crypto:eth',
@@ -217,12 +217,12 @@ describe('selectRows', () => {
     ])
   })
 
-  it('aplica la vista, luego la búsqueda', () => {
+  it('applies the view before the search', () => {
     expect(ids(withSearch(defaultMarketQuery('gainers'), 'eth'))).toEqual(['crypto:eth'])
     expect(ids(withSearch(defaultMarketQuery('gainers'), 'sol'))).toEqual([])
   })
 
-  it('respeta el orden elegido por el usuario por encima del de la vista', () => {
+  it('prioritizes the user-selected sort over the view default', () => {
     const state = withSort(defaultMarketQuery(), 'name')
 
     expect(ids(state)).toEqual([
@@ -235,7 +235,7 @@ describe('selectRows', () => {
     ])
   })
 
-  it('una búsqueda sin coincidencias devuelve una lista vacía', () => {
+  it('returns an empty list when a search has no matches', () => {
     expect(ids(withSearch(defaultMarketQuery(), 'zzz'))).toEqual([])
   })
 })

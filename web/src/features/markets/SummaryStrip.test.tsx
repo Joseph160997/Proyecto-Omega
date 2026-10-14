@@ -10,7 +10,7 @@ const texts = (role: 'term' | 'definition') =>
   screen.getAllByRole(role).map((element) => element.textContent)
 
 describe('SummaryStrip', () => {
-  it('muestra las cuatro métricas del conjunto y cuántos activos abarca', () => {
+  it('shows the four metrics and the number of assets in the set', () => {
     render(<SummaryStrip summary={summarize(SAMPLE_QUOTES)} />)
 
     expect(screen.getByText('Resumen de los 6 activos cargados')).toBeInTheDocument()
@@ -19,14 +19,14 @@ describe('SummaryStrip', () => {
     expect(texts('definition')).toEqual(['$1.85K', '$170', '2 / 2', '2 sin cambio', '54.1%'])
   })
 
-  it('sin datos usa guiones y un nombre genérico para el líder', () => {
+  it('uses placeholders and a generic leader label when there is no data', () => {
     render(<SummaryStrip summary={summarize([])} />)
 
     expect(texts('term')).toEqual(['Cap. total', 'Volumen 24 h', 'Suben / bajan', 'Peso del líder'])
     expect(texts('definition')).toEqual(['—', '—', '0 / 0', '—'])
   })
 
-  it('es una región con nombre y las métricas son pares término/definición', () => {
+  it('is a named region with metrics as term-definition pairs', () => {
     render(<SummaryStrip summary={summarize(SAMPLE_QUOTES)} />)
 
     expect(screen.getByRole('region', { name: 'Resumen del mercado' })).toBeInTheDocument()

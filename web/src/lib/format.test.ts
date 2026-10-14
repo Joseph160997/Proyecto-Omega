@@ -135,7 +135,7 @@ describe('formatShare', () => {
     [0, 1, '0.0%'],
     [1, 1, '100.0%'],
     [0.00004, 2, '0.00%'],
-  ])('%s con %s decimales → %s', (fraction, digits, expected) => {
+  ])('%s with %s decimal places → %s', (fraction, digits, expected) => {
     expect(formatShare(fraction, digits)).toBe(expected)
   })
 

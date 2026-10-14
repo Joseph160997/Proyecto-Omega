@@ -17,7 +17,7 @@ const renderCards = (quotes: readonly MarketQuote[]) =>
   )
 
 describe('TopCards', () => {
-  it('muestra una tarjeta por vista, con su título', () => {
+  it('shows one card per view with its title', () => {
     renderCards(SAMPLE_QUOTES)
 
     expect(screen.getAllByRole('heading').map((heading) => heading.textContent)).toEqual([
@@ -28,7 +28,7 @@ describe('TopCards', () => {
     ])
   })
 
-  it('cada tarjeta enlaza a la lista completa de su vista', () => {
+  it('each card links to the full list for its view', () => {
     renderCards(SAMPLE_QUOTES)
 
     expect(screen.getByRole('link', { name: 'Ver todo: Ganadores 24 h' })).toHaveAttribute(
@@ -49,7 +49,7 @@ describe('TopCards', () => {
     )
   })
 
-  it('muestra como máximo 5 activos por tarjeta', () => {
+  it('shows at most five assets per card', () => {
     renderCards(makeMarket(45))
 
     for (const list of screen.getAllByRole('list')) {
@@ -57,7 +57,7 @@ describe('TopCards', () => {
     }
   })
 
-  it('cada tarjeta es el principio de su vista: ganadores de mayor a menor', () => {
+  it('each card starts with the highest-ranked gainers', () => {
     renderCards(SAMPLE_QUOTES)
 
     const [gainers] = screen.getAllByRole('list')
@@ -71,7 +71,7 @@ describe('TopCards', () => {
     expect(symbols[1]).toContain('BTC')
   })
 
-  it('la tarjeta de volumen muestra el volumen y la de actividad la proporción', () => {
+  it('the volume card shows volume and the activity card shows the ratio', () => {
     renderCards(SAMPLE_QUOTES)
 
     const [, , volume, active] = screen.getAllByRole('list')
@@ -81,7 +81,7 @@ describe('TopCards', () => {
     expect(within(active as HTMLElement).getAllByRole('listitem')[0]).toHaveTextContent('SOL40.00%')
   })
 
-  it('sin datos cada tarjeta lo dice en vez de quedar vacía', () => {
+  it('each card displays an empty state when there is no data', () => {
     renderCards([])
 
     expect(screen.getAllByText('Sin datos.')).toHaveLength(4)

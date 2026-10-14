@@ -15,11 +15,11 @@ describe('totalPagesFor', () => {
     expect(totalPagesFor(items, size)).toBe(expected)
   })
 
-  it.each([[0], [-1], [1.5], [NaN]])('rechaza un tamaño de página %s', (size) => {
+  it.each([[0], [-1], [1.5], [NaN]])('rejects page size %s', (size) => {
     expect(() => totalPagesFor(10, size)).toThrow(RangeError)
   })
 
-  it.each([[-1], [1.5], [NaN]])('rechaza un total de %s elementos', (items) => {
+  it.each([[-1], [1.5], [NaN]])('rejects a total of %s items', (items) => {
     expect(() => totalPagesFor(items, 20)).toThrow(RangeError)
   })
 })
@@ -43,27 +43,27 @@ describe('clampPage', () => {
 describe('paginate', () => {
   const items = Array.from({ length: 45 }, (_, index) => index + 1)
 
-  it('devuelve la primera página con su rango', () => {
+  it('returns the first page and its range', () => {
     const view = paginate(items, 1, 20)
 
     expect(view.items).toEqual(items.slice(0, 20))
     expect(view).toMatchObject({ page: 1, totalPages: 3, totalItems: 45, from: 1, to: 20 })
   })
 
-  it('la última página puede tener menos elementos', () => {
+  it('allows the last page to contain fewer items', () => {
     const view = paginate(items, 3, 20)
 
     expect(view.items).toEqual([41, 42, 43, 44, 45])
     expect(view).toMatchObject({ page: 3, from: 41, to: 45 })
   })
 
-  it('una página fuera de rango se corrige y lo informa en `page`', () => {
+  it('clamps an out-of-range page and reports it in `page`', () => {
     expect(paginate(items, 99, 20).page).toBe(3)
     expect(paginate(items, 0, 20).page).toBe(1)
     expect(paginate(items, NaN, 20).page).toBe(1)
   })
 
-  it('sin elementos hay una página vacía y el rango es 0–0', () => {
+  it('returns an empty page with a 0–0 range when there are no items', () => {
     expect(paginate([], 1, 20)).toEqual({
       items: [],
       page: 1,
@@ -74,7 +74,7 @@ describe('paginate', () => {
     })
   })
 
-  it('devuelve una copia: no modifica el array recibido', () => {
+  it('returns a copy without mutating the input array', () => {
     const view = paginate(items, 1, 20)
 
     view.items.push(999)
@@ -101,24 +101,24 @@ describe('pageWindow', () => {
     [5, 8, [1, 'gap', 4, 5, 6, 7, 8]],
   ]
 
-  it.each(cases)('página %s de %s', (current, total, expected) => {
+  it.each(cases)('page %s of %s', (current, total, expected) => {
     expect(pageWindow(current, total)).toEqual(expected)
   })
 
-  it('sin páginas devuelve una lista vacía', () => {
+  it('returns an empty list when there are no pages', () => {
     expect(pageWindow(1, 0)).toEqual([])
   })
 
-  it('con más vecinos la ventana crece', () => {
+  it('increases the window when more siblings are requested', () => {
     expect(pageWindow(10, 20, 2)).toEqual([1, 'gap', 8, 9, 10, 11, 12, 'gap', 20])
     expect(pageWindow(1, 20, 2)).toEqual([1, 2, 3, 4, 5, 6, 7, 'gap', 20])
   })
 
-  it.each([[-1], [1.5], [NaN]])('rechaza siblings = %s', (siblings) => {
+  it.each([[-1], [1.5], [NaN]])('rejects siblings = %s', (siblings) => {
     expect(() => pageWindow(1, 13, siblings)).toThrow(RangeError)
   })
 
-  it('con más de 7 páginas, la ventana siempre tiene 7 posiciones y es coherente', () => {
+  it('keeps a consistent seven-item window when there are more than seven pages', () => {
     for (let total = 8; total <= 30; total += 1) {
       for (let page = 1; page <= total; page += 1) {
         const window = pageWindow(page, total)

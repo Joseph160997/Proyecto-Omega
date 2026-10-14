@@ -95,12 +95,12 @@ const SURFACES = ['canvas', 'sidebar', 'panel', 'raised']
 const TEXTS = ['fg', 'fg-muted', 'fg-subtle', 'accent', 'up', 'down', 'warning', 'info']
 const AA = 4.5
 
-describe.each(Object.keys(THEMES))('tokens de color (%s)', (themeName) => {
+describe.each(Object.keys(THEMES))('color tokens (%s)', (themeName) => {
   const theme = THEMES[themeName] ?? {}
   const rgbOf = (name: string) => tokenColor(theme, name).rgb
 
   it.each(TEXTS.flatMap((text) => SURFACES.map((surface) => [text, surface] as [string, string])))(
-    '%s sobre %s cumple contraste AA',
+    '%s on %s meets AA contrast',
     (text, surface) => {
       expect(contrast(rgbOf(text), rgbOf(surface))).toBeGreaterThanOrEqual(AA)
     },
@@ -109,7 +109,7 @@ describe.each(Object.keys(THEMES))('tokens de color (%s)', (themeName) => {
   it.each([
     ['up', 'up-soft'],
     ['down', 'down-soft'],
-  ])('el chip %s legible sobre %s, en panel y en fila con hover', (text, soft) => {
+  ])('the %s chip is legible on %s, both in panels and hovered rows', (text, soft) => {
     for (const surface of ['panel', 'raised']) {
       const chipBackground = over(tokenColor(theme, soft), tokenColor(theme, surface))
 
@@ -117,20 +117,20 @@ describe.each(Object.keys(THEMES))('tokens de color (%s)', (themeName) => {
     }
   })
 
-  it('el texto sobre el relleno del acento cumple AA', () => {
+  it('text on the accent fill meets AA contrast', () => {
     expect(contrast(rgbOf('on-accent'), rgbOf('accent-fill'))).toBeGreaterThanOrEqual(AA)
   })
 
-  it('el anillo de foco (accent) se ve sobre fondo y panel (3:1)', () => {
+  it('the accent focus ring is visible on canvas and panel (3:1)', () => {
     expect(contrast(rgbOf('accent'), rgbOf('canvas'))).toBeGreaterThanOrEqual(3)
     expect(contrast(rgbOf('accent'), rgbOf('panel'))).toBeGreaterThanOrEqual(3)
   })
 })
 
-describe('paridad entre temas', () => {
+describe('theme parity', () => {
   const isAlias = (value: string | undefined) => value?.startsWith('var(') ?? false
 
-  it('todo token propio del tema claro también está en el oscuro', () => {
+  it('every custom light-theme token also exists in the dark theme', () => {
     const missing = Object.entries(root)
       .filter(([name, value]) => !isAlias(value) && !(name in dark))
       .map(([name]) => name)
@@ -138,13 +138,13 @@ describe('paridad entre temas', () => {
     expect(missing).toEqual([])
   })
 
-  it('el tema oscuro no declara tokens que el claro no tenga', () => {
+  it('the dark theme does not declare tokens missing from the light theme', () => {
     expect(Object.keys(dark).filter((name) => !(name in root))).toEqual([])
   })
 })
 
-describe('lectura del CSS', () => {
-  it('encuentra los tokens de los dos temas (evita pasar en vacío)', () => {
+describe('CSS parsing', () => {
+  it('finds tokens for both themes (prevents passing with empty input)', () => {
     expect(Object.keys(root).length).toBeGreaterThan(15)
     expect(Object.keys(dark).length).toBeGreaterThan(15)
     expect(root.fg).toBeDefined()

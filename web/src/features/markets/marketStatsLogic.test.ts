@@ -6,11 +6,11 @@ import { makeQuote } from '@/test-utils/makeQuote'
 import type { MarketQuote } from '@/domain/market/quote'
 
 describe('turnoverRatio', () => {
-  it('es volumen entre capitalización', () => {
+  it('calculates volume divided by market capitalization', () => {
     expect(turnoverRatio(makeQuote('a', { volume24h: 50, marketCap: 1000 }))).toBeCloseTo(0.05)
   })
 
-  it('un volumen cero es válido y da 0', () => {
+  it('accepts zero volume and returns 0', () => {
     expect(turnoverRatio(makeQuote('a', { volume24h: 0, marketCap: 1000 }))).toBe(0)
   })
 
@@ -29,7 +29,7 @@ describe('turnoverRatio', () => {
 })
 
 describe('summarize', () => {
-  it('sin activos: todo en cero y sin líder', () => {
+  it('returns zeros and no leader when there are no assets', () => {
     expect(summarize([])).toEqual({
       assetCount: 0,
       totalMarketCap: 0,
@@ -41,7 +41,7 @@ describe('summarize', () => {
     })
   })
 
-  it('suma capitalización y volumen e ignora datos faltantes o inválidos', () => {
+  it('sums market cap and volume while ignoring missing or invalid values', () => {
     const result = summarize([
       makeQuote('a', { marketCap: 600, volume24h: 10 }),
       makeQuote('b', { marketCap: 300 }),
@@ -54,7 +54,7 @@ describe('summarize', () => {
     expect(result.totalVolume24h).toBe(15)
   })
 
-  it('cuenta suben, bajan y planos con el mismo criterio que la pantalla', () => {
+  it('counts rising, falling, and flat assets using the screen’s rounding rules', () => {
     const result = summarize([
       makeQuote('a', { change24hPercent: 2 }),
       makeQuote('b', { change24hPercent: 0.004 }), // se ve 0.00%
@@ -66,7 +66,7 @@ describe('summarize', () => {
     expect(result).toMatchObject({ rising: 1, falling: 1, flat: 3 })
   })
 
-  it('el líder es el de mayor capitalización y su cuota se calcula sobre el total', () => {
+  it('selects the largest market cap as leader and calculates its share of the total', () => {
     const result = summarize([
       makeQuote('a', { marketCap: 600 }),
       makeQuote('b', { marketCap: 300 }),
@@ -78,7 +78,7 @@ describe('summarize', () => {
     expect(result.leader?.share).toBeCloseTo(0.6)
   })
 
-  it('en un empate de capitalización gana el primero', () => {
+  it('uses the first asset when market caps are tied', () => {
     const result = summarize([
       makeQuote('a', { marketCap: 500 }),
       makeQuote('b', { marketCap: 500 }),
@@ -87,7 +87,7 @@ describe('summarize', () => {
     expect(result.leader?.assetId).toBe('crypto:a')
   })
 
-  it('los que no tienen capitalización no pueden ser líder', () => {
+  it('assets without market cap cannot be the leader', () => {
     const result = summarize([
       makeQuote('a', { volume24h: 999 }),
       makeQuote('b', { marketCap: 10 }),
@@ -96,7 +96,7 @@ describe('summarize', () => {
     expect(result.leader?.assetId).toBe('crypto:b')
   })
 
-  it('sin ninguna capitalización no hay líder', () => {
+  it('returns no leader when no asset has market cap', () => {
     expect(summarize([makeQuote('a'), makeQuote('b')]).leader).toBeUndefined()
   })
 })
