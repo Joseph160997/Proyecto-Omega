@@ -22,7 +22,7 @@ export function MarketTable({ rows, sort, onSort, emptyMessage }: MarketTablePro
 
   return (
     <Panel padding="none" className="overflow-x-auto">
-      <table className="w-full min-w-[58rem] text-sm">
+      <table className="w-full min-w-232 text-sm">
         <caption className="sr-only">
           Criptomonedas con precio, cambio en 24 horas, capitalización, volumen, actividad y
           tendencia de 7 días
