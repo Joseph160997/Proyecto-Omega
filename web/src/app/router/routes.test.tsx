@@ -38,7 +38,9 @@ describe('app routes', () => {
     renderRoutes(routes, '/unknown-route')
 
     expect(screen.getByRole('heading', { name: 'Página no encontrada' })).toBeInTheDocument()
-    expect(screen.getAllByRole('navigation', { name: 'Navegación principal' }).length).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole('navigation', { name: 'Navegación principal' }).length,
+    ).toBeGreaterThan(0)
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
   })
 
@@ -76,7 +78,9 @@ describe('app routes', () => {
     renderRoutes(withBrokenPage, '/broken')
 
     expect(screen.getByRole('heading', { name: 'Algo salió mal' })).toBeInTheDocument()
-    expect(screen.getAllByRole('navigation', { name: 'Navegación principal' }).length).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole('navigation', { name: 'Navegación principal' }).length,
+    ).toBeGreaterThan(0)
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
   })
 })
