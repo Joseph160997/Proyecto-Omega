@@ -4,24 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Terminal financiera simulada: mercados reales, portafolio virtual y dinero ficticio. Proyecto educativo."
-    />
     <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0c0b0a" media="(prefers-color-scheme: dark)" />
-    <title>Omega Markets</title>
-
+    <!-- seo:head -->
     <script>
+      // Aplica el tema ANTES del primer paint. Duplica la clave de
+      // THEME_STORAGE_KEY a propósito: este script no puede importar módulos.
       try {
-        const raw = localStorage.getItem('omega-markets:settings:theme:v1')
-        const parsed = raw ? JSON.parse(raw) : { mode: 'dark' }
-        const mode = parsed.mode ?? 'dark'
-        const isDark = mode !== 'light'
-
+        var raw = localStorage.getItem('omega-markets:settings:theme:v1')
+        var mode = raw ? JSON.parse(raw).mode : 'dark'
+        var isDark = mode !== 'light'
         document.documentElement.classList.toggle('dark', isDark)
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
-      } catch {
+      } catch (e) {
         document.documentElement.classList.add('dark')
       }
     </script>
