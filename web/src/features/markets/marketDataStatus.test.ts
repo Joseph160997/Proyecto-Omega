@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  deriveDataStatus,
-  describeDataStatus,
-  STALE_AFTER_MS,
-} from '@/features/markets/marketDataStatus'
+import { deriveDataStatus, describeDataStatus } from '@/features/markets/marketDataStatus'
+import { DEFAULT_MAX_QUOTE_AGE_MS } from '@/domain/market/quote'
 
 import type { DataStatus, DataStatusInput } from '@/features/markets/marketDataStatus'
 
@@ -42,13 +39,13 @@ describe('deriveDataStatus', () => {
   })
 
   it('the exact threshold is fresh; one millisecond later it is stale', () => {
-    expect(derive({ newestTimestamp: NOW - STALE_AFTER_MS })).toEqual({
+    expect(derive({ newestTimestamp: NOW - DEFAULT_MAX_QUOTE_AGE_MS })).toEqual({
       kind: 'fresh',
-      ageMs: STALE_AFTER_MS,
+      ageMs: DEFAULT_MAX_QUOTE_AGE_MS,
     })
-    expect(derive({ newestTimestamp: NOW - STALE_AFTER_MS - 1 })).toEqual({
+    expect(derive({ newestTimestamp: NOW - DEFAULT_MAX_QUOTE_AGE_MS - 1 })).toEqual({
       kind: 'stale',
-      ageMs: STALE_AFTER_MS + 1,
+      ageMs: DEFAULT_MAX_QUOTE_AGE_MS + 1,
     })
   })
 

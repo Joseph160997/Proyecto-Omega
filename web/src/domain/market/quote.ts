@@ -3,6 +3,9 @@ import type { Price } from '@/domain/shared/price'
 
 export type QuoteSource = 'coingecko' | 'binance' | 'finnhub' | 'twelvedata' | 'frankfurter'
 
+/** Default maximum age for a quote used by the UI and simulated trading. */
+export const DEFAULT_MAX_QUOTE_AGE_MS = 5 * 60_000
+
 /**
  * Núcleo mínimo que necesitan las reglas de trading. Markets lo ampliará
  * (nombre, cambio 24h, volumen...). Sin campo `stale`: es derivado, ver isQuoteStale.

@@ -1,7 +1,8 @@
 import { formatAge } from '@/lib/format'
+import { DEFAULT_MAX_QUOTE_AGE_MS } from '@/domain/market/quote'
 
 /** Cuánto tiempo sin datos nuevos antes de avisar de que están desactualizados. */
-export const STALE_AFTER_MS = 10 * 60_000
+export const STALE_AFTER_MS = DEFAULT_MAX_QUOTE_AGE_MS
 
 export type DataStatus =
   | { kind: 'idle' }
