@@ -1,7 +1,8 @@
-import { parseRounded } from '@/domain/shared/decimal-input'
+import { parseRounded, parseStrict } from '@/domain/shared/decimal-input'
 
 import type { Dec } from '@/domain/shared/decimal'
-import type { DecimalLimits } from '@/domain/shared/decimal-input'
+import type { DecimalInputError, DecimalLimits } from '@/domain/shared/decimal-input'
+import type { Result } from '@/domain/shared/result'
 
 export type CurrencyCode = 'USD'
 
@@ -16,6 +17,16 @@ export class Money {
 
   private constructor(amount: Dec) {
     this.amount = amount
+  }
+
+  /**
+   * Entrada no confiable (disco, formularios). No lanza y NO redondea: más de 2 decimales
+   * o un valor negativo se rechazan, para que lo que se lee sea exactamente lo que se escribió.
+   */
+  static parse(input: string): Result<Money, DecimalInputError> {
+    const parsed = parseStrict(input, MONEY_LIMITS)
+
+    return parsed.ok ? { ok: true, value: new Money(parsed.value) } : parsed
   }
 
   /** Acepta string o number. Lanza si el valor es inválido o excede el máximo. */

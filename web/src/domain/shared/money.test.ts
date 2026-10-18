@@ -2,6 +2,37 @@ import { describe, expect, it } from 'vitest'
 
 import { MONEY_MAX, Money } from '@/domain/shared/money'
 
+describe('Money.parse', () => {
+  it.each([
+    ['0.00', '0.00'],
+    ['100', '100.00'],
+    ['  2.5 ', '2.50'],
+  ])('parses %j as %s', (input, expected) => {
+    const result = Money.parse(input)
+
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.value.toString()).toBe(expected)
+  })
+
+  it.each([
+    ['', 'NOT_A_NUMBER'],
+    ['abc', 'NOT_A_NUMBER'],
+    ['1e3', 'NOT_A_NUMBER'],
+    ['-1', 'NEGATIVE'],
+    ['1.005', 'TOO_MANY_DECIMALS'],
+    ['10000000000000000000001', 'TOO_LARGE'],
+    ['9'.repeat(10_000), 'TOO_LARGE'],
+  ])('returns %s for invalid input %j without throwing', (input, kind) => {
+    let result: ReturnType<typeof Money.parse> | undefined
+
+    expect(() => {
+      result = Money.parse(input)
+    }).not.toThrow()
+    expect(result?.ok).toBe(false)
+    if (result && !result.ok) expect(result.error.kind).toBe(kind)
+  })
+})
+
 describe('Money', () => {
   describe('precision', () => {
     it('avoids the floating-point issue of number', () => {

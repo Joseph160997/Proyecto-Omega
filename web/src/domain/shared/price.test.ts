@@ -28,6 +28,37 @@ describe('Price.fromMarket', () => {
 })
 
 describe('Price', () => {
+  describe('parse', () => {
+    it.each([
+      ['0.00', '0'],
+      ['100', '100'],
+      ['  2.5 ', '2.5'],
+    ])('parses %j as %s', (input, expected) => {
+      const result = Price.parse(input)
+
+      expect(result.ok).toBe(true)
+      if (result.ok) expect(result.value.toString()).toBe(expected)
+    })
+
+    it.each([
+      ['', 'NOT_A_NUMBER'],
+      ['abc', 'NOT_A_NUMBER'],
+      ['1e3', 'NOT_A_NUMBER'],
+      ['-1', 'NEGATIVE'],
+      ['0.123456789', 'TOO_MANY_DECIMALS'],
+      ['1000000001', 'TOO_LARGE'],
+      ['9'.repeat(10_000), 'TOO_LARGE'],
+    ])('returns %s for invalid input %j without throwing', (input, kind) => {
+      let result: ReturnType<typeof Price.parse> | undefined
+
+      expect(() => {
+        result = Price.parse(input)
+      }).not.toThrow()
+      expect(result?.ok).toBe(false)
+      if (result && !result.ok) expect(result.error.kind).toBe(kind)
+    })
+  })
+
   it('serializes in canonical form', () => {
     expect(Price.of('1.50').toString()).toBe('1.5')
     expect(Price.of('2').toString()).toBe('2')
@@ -38,7 +69,7 @@ describe('Price', () => {
     expect(() => Price.of(0.1 + 0.2)).toThrow(RangeError)
   })
 
-  it('igualdad y cero', () => {
+  it('checks equality and zero', () => {
     expect(Price.of('1').equals(Price.of('1.0'))).toBe(true)
     expect(Price.of('0').isZero()).toBe(true)
   })

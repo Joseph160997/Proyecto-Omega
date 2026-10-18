@@ -23,6 +23,13 @@ export class Price {
     return parsed.ok ? ok(new Price(parsed.value)) : parsed
   }
 
+  /** Entrada no confiable (disco). No lanza; estricta: no redondea. */
+  static parse(input: string): Result<Price, DecimalInputError> {
+    const parsed = parseStrict(input, LIMITS)
+
+    return parsed.ok ? ok(new Price(parsed.value)) : parsed
+  }
+
   /** Valores de confianza (persistidos, tests). Estricto: lanza si es inválido. */
   static of(input: string | number): Price {
     const parsed = parseStrict(input, LIMITS)
