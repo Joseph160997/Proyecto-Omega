@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
+import { Money } from '@/domain/shared/money'
 import { Price } from '@/domain/shared/price'
 import {
   formatCompactUsd,
   formatAge,
+  formatMoney,
   initialOf,
   formatPercentChange,
   formatShare,
@@ -27,6 +29,24 @@ describe('formatUsdPrice', () => {
     ['1000000000', '$1,000,000,000.00'],
   ])('%s -> %s', (input, expected) => {
     expect(formatUsdPrice(Price.of(input))).toBe(expected)
+  })
+})
+
+describe('formatMoney', () => {
+  it.each([
+    ['5005', '$5,005.00'],
+    ['0', '$0.00'],
+    ['-504.5', '-$504.50'],
+    ['1000000', '$1,000,000.00'],
+  ])('%s -> %s', (input, expected) => {
+    // Arrange
+    const money = Money.usd(input)
+
+    // Act
+    const formatted = formatMoney(money)
+
+    // Assert
+    expect(formatted).toBe(expected)
   })
 })
 

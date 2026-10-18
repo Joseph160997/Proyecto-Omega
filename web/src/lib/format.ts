@@ -1,3 +1,4 @@
+import type { Money } from '@/domain/shared/money'
 import type { Price } from '@/domain/shared/price'
 
 const PLACEHOLDER = '—'
@@ -19,6 +20,11 @@ export function formatUsdPrice(price: Price): string {
   if (value >= 0.01) return USD_SUB_DOLLAR.format(value)
 
   return USD_MICRO.format(value)
+}
+
+/** Formats an amount of money for display, e.g. "$5,005.00". */
+export function formatMoney(money: Money): string {
+  return USD_STANDARD.format(Number(money.toString()))
 }
 
 /** Formats large values such as market capitalization and volume. */

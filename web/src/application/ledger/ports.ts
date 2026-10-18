@@ -3,6 +3,12 @@ import type { LedgerError, LedgerState } from '@/domain/ledger/ledger'
 import type { OrderRejection } from '@/domain/orders/rejection'
 import type { Result } from '@/domain/shared/result'
 
+/**
+ * Por qué `decide` no quiso crear un asiento: una orden rechazada por las reglas, o una
+ * operación de cuenta que no procede. Se decide DENTRO de `append` para que sea atómico.
+ */
+export type EntryRejection = OrderRejection | { kind: 'ACCOUNT_ALREADY_OPEN' }
+
 /** Tope de asientos: protege al navegador de un libro que crece sin límite. */
 export const MAX_LEDGER_ENTRIES = 50_000
 
@@ -13,7 +19,7 @@ export type LedgerRepositoryError =
   | { kind: 'CORRUPT_DATA'; index: number | undefined; issues: readonly string[] }
   | { kind: 'TRANSACTION_FAILED' }
   /** `decide` no quiso crear un asiento (p. ej. saldo insuficiente). */
-  | { kind: 'REJECTED'; rejection: OrderRejection }
+  | { kind: 'REJECTED'; rejection: EntryRejection }
   /** El asiento viola las reglas del libro (id repetido, efectivo, posición...). */
   | { kind: 'LEDGER_ERROR'; error: LedgerError }
   /** El asiento no se puede guardar en forma segura (no pasaría el esquema al leerlo). */
@@ -27,7 +33,7 @@ export interface LedgerSnapshot {
 }
 
 /** Recibe el estado ACTUAL y decide qué asiento añadir, o por qué no. */
-export type DecideEntry = (state: LedgerState) => Result<LedgerEntry, OrderRejection>
+export type DecideEntry = (state: LedgerState) => Result<LedgerEntry, EntryRejection>
 
 export interface LedgerRepository {
   /** false = los datos se pierden al cerrar la pestaña (modo de respaldo en memoria). */
