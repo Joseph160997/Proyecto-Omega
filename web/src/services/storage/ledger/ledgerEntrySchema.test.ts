@@ -163,14 +163,14 @@ describe('deposit record validation', () => {
   })
 
   it.each([
-    ['5005', 'non-canonical integer money'],
-    [' 5005.00', 'leading whitespace'],
-    ['5005.000', 'too many decimal places'],
-    ['-1.00', 'negative money'],
-    [5005, 'numeric money instead of text'],
-    ['1e3', 'exponent notation'],
-    ['9'.repeat(5000), 'oversized money text'],
-  ])('rejects %s when used as %s', (amount) => {
+    { amount: '5005', description: 'non-canonical integer money' },
+    { amount: ' 5005.00', description: 'leading whitespace' },
+    { amount: '5005.000', description: 'too many decimal places' },
+    { amount: '-1.00', description: 'negative money' },
+    { amount: 5005, description: 'numeric money instead of text' },
+    { amount: '1e3', description: 'exponent notation' },
+    { amount: '9'.repeat(5000), description: 'oversized money text' },
+  ])('rejects $description', ({ amount }) => {
     expect(expectInvalidRecord({ ...validDepositRecord(), amount })).not.toHaveLength(0)
   })
 

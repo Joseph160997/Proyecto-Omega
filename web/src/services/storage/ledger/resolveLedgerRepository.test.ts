@@ -7,12 +7,14 @@ import { createIndexedDbLedgerRepository } from '@/services/storage/ledger/index
 import { ENTRIES_STORE } from '@/services/storage/ledger/ledgerDb'
 import { resolveLedgerRepository } from '@/services/storage/ledger/resolveLedgerRepository'
 
+import type { LedgerRepository } from '@/application/ledger/ports'
+
 interface Closable {
   close(): void
 }
 
 const databaseNames = new Set<string>()
-const repositories: Array<{ close?: () => Promise<void> }> = []
+const repositories: Array<{ close: () => Promise<void> }> = []
 const rawDatabases = new Set<Closable>()
 let nextDatabaseId = 0
 
@@ -30,8 +32,10 @@ function trackRawDatabase<T extends Closable>(database: T): T {
   return database
 }
 
-function trackRepository<T extends { close?: () => Promise<void> }>(repository: T): T {
-  repositories.push(repository)
+function trackRepository(repository: LedgerRepository): LedgerRepository {
+  if ('close' in repository && typeof repository.close === 'function') {
+    repositories.push({ close: repository.close.bind(repository) })
+  }
 
   return repository
 }
@@ -40,7 +44,7 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 
   for (const repository of repositories) {
-    if (typeof repository.close === 'function') await repository.close()
+    await repository.close()
   }
   repositories.length = 0
 
