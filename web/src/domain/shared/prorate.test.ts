@@ -5,46 +5,46 @@ import { prorate, unitCost } from '@/domain/shared/prorate'
 import { Quantity } from '@/domain/shared/quantity'
 
 describe('prorate', () => {
-  it('calcula la parte proporcional', () => {
+  it('calculates the proportional amount', () => {
     expect(prorate(Money.usd('5005.00'), Quantity.of('0.05'), Quantity.of('0.1')).toString()).toBe(
       '2502.50',
     )
   })
 
-  it('redondea half-up a centavos', () => {
-    // 100.01 / 3 = 33.3366… → 33.34
+  it('rounds half-up to cents', () => {
+    // 100.01 / 3 = 33.3366… → 33.34.
     expect(prorate(Money.usd('100.01'), Quantity.of('1'), Quantity.of('3')).toString()).toBe(
       '33.34',
     )
-    // 66.67 / 2 = 33.335 → 33.34 (justo en la mitad, sube)
+    // 66.67 / 2 = 33.335 → 33.34 (an exact midpoint rounds up).
     expect(prorate(Money.usd('66.67'), Quantity.of('1'), Quantity.of('2')).toString()).toBe('33.34')
   })
 
-  it('una parte igual al total devuelve el monto entero', () => {
+  it('returns the full amount when the part equals the whole', () => {
     expect(prorate(Money.usd('123.45'), Quantity.of('7'), Quantity.of('7')).toString()).toBe(
       '123.45',
     )
   })
 
-  it('una parte cero da cero', () => {
+  it('returns zero when the part is zero', () => {
     expect(prorate(Money.usd('50'), Quantity.zero(), Quantity.of('3')).toString()).toBe('0.00')
   })
 
-  it('un total cero es un error de uso', () => {
+  it('throws when the whole is zero', () => {
     expect(() => prorate(Money.usd('1'), Quantity.of('1'), Quantity.zero())).toThrow(RangeError)
   })
 })
 
 describe('unitCost', () => {
-  it('es el costo dividido entre la cantidad', () => {
+  it('calculates cost divided by quantity', () => {
     expect(unitCost(Money.usd('5005.00'), Quantity.of('0.1')).toString()).toBe('50050')
   })
 
-  it('redondea a 8 decimales', () => {
+  it('rounds to eight decimal places', () => {
     expect(unitCost(Money.usd('100.00'), Quantity.of('3')).toString()).toBe('33.33333333')
   })
 
-  it('una cantidad cero es un error de uso', () => {
+  it('throws when the quantity is zero', () => {
     expect(() => unitCost(Money.usd('1'), Quantity.zero())).toThrow(RangeError)
   })
 })
