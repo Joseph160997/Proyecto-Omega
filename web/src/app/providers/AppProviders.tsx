@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
+import { LedgerProvider } from '@/app/providers/LedgerProvider'
 import { AppRouter } from '@/app/router/AppRouter'
 
 const queryClient = new QueryClient({
@@ -16,7 +17,9 @@ const queryClient = new QueryClient({
 export function AppProviders() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppRouter />
+      <LedgerProvider>
+        <AppRouter />
+      </LedgerProvider>
     </QueryClientProvider>
   )
 }
