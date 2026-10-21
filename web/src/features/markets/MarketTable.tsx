@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 import { AssetAvatar } from '@/components/ui/AssetAvatar'
 import { ChangeChip } from '@/components/ui/ChangeChip'
 import { Panel } from '@/components/ui/Panel'
@@ -22,10 +24,10 @@ export function MarketTable({ rows, sort, onSort, emptyMessage }: MarketTablePro
 
   return (
     <Panel padding="none" className="overflow-x-auto">
-      <table className="w-full min-w-232 text-sm">
+      <table className="w-full min-w-248 text-sm">
         <caption className="sr-only">
           Criptomonedas con precio, cambio en 24 horas, capitalización, volumen, actividad y
-          tendencia de 7 días
+          tendencia de 7 días y acceso a Portfolio
         </caption>
 
         <thead className="border-b border-line text-xs text-fg-muted">
@@ -64,13 +66,16 @@ export function MarketTable({ rows, sort, onSort, emptyMessage }: MarketTablePro
             <th scope="col" className="px-4 py-3 text-right font-medium">
               7 días
             </th>
+            <th scope="col" className="px-4 py-3 text-right font-medium">
+              Acción
+            </th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-line">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-4 py-10 text-center text-fg-muted">
+              <td colSpan={8} className="px-4 py-10 text-center text-fg-muted">
                 {emptyMessage}
               </td>
             </tr>
@@ -104,6 +109,15 @@ export function MarketTable({ rows, sort, onSort, emptyMessage }: MarketTablePro
                   <div className="flex justify-end">
                     <Sparkline values={quote.sparkline7d} />
                   </div>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <Link
+                    to={`/portfolio?assetId=${encodeURIComponent(quote.assetId)}`}
+                    aria-label={`Operar ${quote.name} (${quote.symbol})`}
+                    className="text-xs font-medium text-accent-fg underline-offset-4 hover:underline"
+                  >
+                    Operar
+                  </Link>
                 </td>
               </tr>
             ))
