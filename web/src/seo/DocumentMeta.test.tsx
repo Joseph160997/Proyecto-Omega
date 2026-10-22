@@ -17,6 +17,7 @@ function renderAt(path: string, siteUrl: string | null = 'https://omega.example'
     <MemoryRouter initialEntries={[path]}>
       <DocumentMeta siteUrl={siteUrl} />
       <Link to="/portfolio">Portfolio</Link>
+      <Link to="/markets/crypto%3Abitcoin">Bitcoin</Link>
       <Link to="/markets?view=gainers&page=2">Gainers</Link>
     </MemoryRouter>,
   )
@@ -49,6 +50,16 @@ describe('DocumentMeta', () => {
     await user.click(screen.getByRole('link', { name: 'Portfolio' }))
 
     expect(document.title).toBe('Portafolio · Omega Markets')
+    expect(robots()).toBe('noindex')
+    expect(canonical()).toBeUndefined()
+  })
+
+  it('uses noindex metadata for a market asset detail route', async () => {
+    const user = renderAt('/markets')
+
+    await user.click(screen.getByRole('link', { name: 'Bitcoin' }))
+
+    expect(document.title).toBe('Detalle de activo · Omega Markets')
     expect(robots()).toBe('noindex')
     expect(canonical()).toBeUndefined()
   })

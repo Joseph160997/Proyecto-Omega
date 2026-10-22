@@ -27,7 +27,7 @@ export function MarketTable({ rows, sort, onSort, emptyMessage }: MarketTablePro
       <table className="w-full min-w-248 text-sm">
         <caption className="sr-only">
           Criptomonedas con precio, cambio en 24 horas, capitalización, volumen, actividad y
-          tendencia de 7 días y acceso a Portfolio
+          tendencia de 7 días y acceso al detalle del activo y Portfolio
         </caption>
 
         <thead className="border-b border-line text-xs text-fg-muted">
@@ -86,7 +86,14 @@ export function MarketTable({ rows, sort, onSort, emptyMessage }: MarketTablePro
                   <div className="flex items-center gap-3">
                     <AssetAvatar symbol={quote.symbol} imageUrl={quote.imageUrl} />
                     <span>
-                      {quote.name} <span className="text-fg-muted">{quote.symbol}</span>
+                      <Link
+                        to={`/markets/${encodeURIComponent(quote.assetId)}`}
+                        aria-label={`Ver detalles de ${quote.name}`}
+                        className="underline-offset-4 hover:underline"
+                      >
+                        {quote.name}
+                      </Link>{' '}
+                      <span className="text-fg-muted">{quote.symbol}</span>
                     </span>
                   </div>
                 </th>

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { MarketExplorer } from '@/features/markets/MarketExplorer'
 import { makeMarket } from '@/test-utils/makeMarket'
+import { makeQuote } from '@/test-utils/makeQuote'
 
 import type { MarketQuote } from '@/domain/market/quote'
 
@@ -145,12 +146,12 @@ describe('MarketExplorer: sorting', () => {
 
     await waitFor(() => expect(router.state.location.search).toBe('?sort=price&dir=desc'))
     expect(header()).toHaveAttribute('aria-sort', 'descending')
-    expect(firstRowName()).toHaveAccessibleName(/^coin45/)
+    expect(firstRowName()).toHaveAccessibleName(/^Ver detalles de coin45/)
 
     await user.click(screen.getByRole('button', { name: /Precio/ }))
 
     await waitFor(() => expect(header()).toHaveAttribute('aria-sort', 'ascending'))
-    expect(firstRowName()).toHaveAccessibleName(/^coin01/)
+    expect(firstRowName()).toHaveAccessibleName(/^Ver detalles de coin01/)
   })
 
   it('sorting returns to the first page', async () => {
@@ -159,6 +160,26 @@ describe('MarketExplorer: sorting', () => {
     await user.click(screen.getByRole('button', { name: /Precio/ }))
 
     await waitFor(() => expect(router.state.location.search).toBe('?sort=price&dir=desc'))
+  })
+})
+
+describe('MarketExplorer: asset navigation', () => {
+  it('links asset names to their encoded detail routes and preserves the Portfolio action', async () => {
+    const { router, user } = renderExplorer('/markets', [
+      makeQuote('bitcoin', { assetId: 'crypto:bitcoin', name: 'Bitcoin', symbol: 'BTC' }),
+    ])
+
+    expect(screen.getByRole('link', { name: 'Ver detalles de Bitcoin' })).toHaveAttribute(
+      'href',
+      '/markets/crypto%3Abitcoin',
+    )
+    expect(screen.getByRole('link', { name: 'Operar Bitcoin (BTC)' })).toHaveAttribute(
+      'href',
+      '/portfolio?assetId=crypto%3Abitcoin',
+    )
+    await user.click(screen.getByRole('link', { name: 'Ver detalles de Bitcoin' }))
+
+    expect(router.state.location.pathname).toBe('/markets/crypto%3Abitcoin')
   })
 })
 
@@ -175,7 +196,7 @@ describe('MarketExplorer: views', () => {
     )
     expect(screen.getByRole('link', { name: 'Todos' })).not.toHaveAttribute('aria-current')
     expect(status()).toHaveTextContent('Mostrando 1–20 de 23 activos')
-    expect(firstRowName()).toHaveAccessibleName(/^coin45/)
+    expect(firstRowName()).toHaveAccessibleName(/^Ver detalles de coin45/)
   })
 
   it('switching views preserves the search', async () => {

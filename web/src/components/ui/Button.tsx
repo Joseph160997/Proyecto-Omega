@@ -19,6 +19,11 @@ const SIZES: Record<ButtonSize, string> = {
   md: 'px-4 py-2 text-sm',
 }
 
+/** Mismas clases para enlaces que deben verse como botón. */
+export function buttonClassName(variant: ButtonVariant = 'secondary', size: ButtonSize = 'md') {
+  return cx(BASE, VARIANTS[variant], SIZES[size])
+}
+
 interface ButtonProps extends ComponentProps<'button'> {
   variant?: ButtonVariant
   size?: ButtonSize

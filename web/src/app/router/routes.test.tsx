@@ -8,6 +8,10 @@ import { routes } from '@/app/router/routes'
 
 import type { RouteObject } from 'react-router-dom'
 
+vi.mock('@/features/asset-detail/AssetDetailPage', () => ({
+  AssetDetailPage: () => <h1>Detalle del activo</h1>,
+}))
+
 function Boom(): never {
   throw new Error('broken page')
 }
@@ -53,6 +57,12 @@ describe('app routes', () => {
       'href',
       '#main-content',
     )
+  })
+
+  it('registers a dynamic route for market asset details', () => {
+    renderRoutes(routes, '/markets/crypto%3Abitcoin')
+
+    expect(screen.getByRole('heading', { name: 'Detalle del activo' })).toBeInTheDocument()
   })
 
   it('renders page errors inside the shell while keeping navigation available', () => {

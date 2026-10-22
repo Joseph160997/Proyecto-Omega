@@ -46,6 +46,17 @@ describe('metaForPath', () => {
     expect(metaForPath('/Markets/')).toBe(metaForPath('/markets'))
   })
 
+  it('uses non-indexable asset detail metadata for one dynamic segment', () => {
+    expect(metaForPath('/markets/crypto%3Abitcoin')).toEqual({
+      title: 'Detalle de activo · Omega Markets',
+      description: 'Precio, gráfico histórico y operación simulada de un activo.',
+      indexable: false,
+    })
+    expect(metaForPath('/markets/crypto%3Abitcoin').indexable).toBe(false)
+    expect(metaForPath('/markets/crypto%3Abitcoin/nested').title).toBe(NOT_FOUND_TITLE)
+    expect(canonicalPathFor('/markets/crypto%3Abitcoin')).toBeUndefined()
+  })
+
   it('marks unknown paths as not found and non-indexable', () => {
     expect(metaForPath('/nothing').indexable).toBe(false)
     expect(metaForPath('/nothing').title).toContain('no encontrada')

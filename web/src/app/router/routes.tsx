@@ -2,6 +2,7 @@ import { RouteErrorPage } from '@/components/feedback/RouteErrorPage'
 import { AppShell } from '@/components/layout/AppShell'
 import { AlertsPage } from '@/features/alerts/AlertsPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { AssetDetailPage } from '@/features/asset-detail/AssetDetailPage'
 import { HistoryPage } from '@/features/history/HistoryPage'
 import { MarketsPage } from '@/features/markets/MarketsPage'
 import { NotFoundPage } from '@/features/NotFoundPage'
@@ -26,6 +27,7 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <DashboardPage /> },
           { path: 'markets', element: <MarketsPage /> },
+          { path: 'markets/:assetId', element: <AssetDetailPage /> },
           { path: 'portfolio', element: <PortfolioPage /> },
           { path: 'watchlist', element: <WatchlistPage /> },
           { path: 'alerts', element: <AlertsPage /> },

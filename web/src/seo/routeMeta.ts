@@ -66,6 +66,12 @@ const NOT_FOUND: PageMeta = {
   indexable: false,
 }
 
+const ASSET_DETAIL: PageMeta = {
+  title: `Detalle de activo · ${SITE_NAME}`,
+  description: 'Precio, gráfico histórico y operación simulada de un activo.',
+  indexable: false,
+}
+
 /** Minúsculas y sin barras finales: "/Markets/" y "/markets" son la misma página. */
 export function normalizePath(pathname: string): string {
   const path = pathname.toLowerCase().replace(/\/+$/, '')
@@ -74,7 +80,11 @@ export function normalizePath(pathname: string): string {
 }
 
 export function metaForPath(pathname: string): PageMeta {
-  return PAGES.get(normalizePath(pathname)) ?? NOT_FOUND
+  const path = normalizePath(pathname)
+
+  if (/^\/markets\/[^/]+$/.test(path)) return ASSET_DETAIL
+
+  return PAGES.get(path) ?? NOT_FOUND
 }
 
 /** Ruta canónica de una página indexable; undefined para el resto (no se canonicalizan). */
