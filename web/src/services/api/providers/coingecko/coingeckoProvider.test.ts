@@ -4,6 +4,7 @@ import { answersExactly } from '@/application/market/quotes-result'
 import { err, ok } from '@/domain/shared/result'
 import { createCoinGeckoProvider } from '@/services/api/providers/coingecko/coingeckoProvider'
 import { COINGECKO_MARKETS_FIXTURE } from '@/services/api/providers/coingecko/coingeckoMarkets.fixture'
+import { CANDLE_TIMEFRAMES } from '@/domain/market/candleTimeframe'
 
 import type { Result } from '@/domain/shared/result'
 import type { HttpClient, HttpRequest } from '@/services/api/httpClient'
@@ -270,6 +271,101 @@ describe('createCoinGeckoProvider', () => {
       const provider = createCoinGeckoProvider({ http })
 
       await expect(provider.getQuotes(['crypto:bitcoin'])).rejects.toMatchObject({
+        name: 'AbortError',
+      })
+    })
+  })
+
+  describe('getCandles', () => {
+    it.each(CANDLE_TIMEFRAMES)('requests OHLC data with the %s period', async (timeframe) => {
+      const { http, requests } = fakeHttp(ok([[1_700_000_000_000, 1, 2, 0.5, 1.5]]))
+      const provider = createCoinGeckoProvider({ http })
+      const controller = new AbortController()
+
+      const result = await provider.getCandles('crypto:bitcoin', timeframe, {
+        signal: controller.signal,
+      })
+      const url = new URL(requests[0]?.url ?? '')
+
+      expect(requests).toHaveLength(1)
+      expect(url.origin + url.pathname).toBe('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc')
+      expect(url.searchParams.get('vs_currency')).toBe('usd')
+      expect(url.searchParams.get('days')).toBe(
+        { '1d': '1', '7d': '7', '30d': '30', '90d': '90', '1y': '365' }[timeframe],
+      )
+      expect(requests[0]?.signal).toBe(controller.signal)
+      expect(result.ok && result.value).toHaveLength(1)
+    })
+
+    it('uses a custom base URL without a trailing slash', async () => {
+      const { http, requests } = fakeHttp(ok([]))
+      const provider = createCoinGeckoProvider({ http, baseUrl: 'https://proxy.test/cg/' })
+
+      await provider.getCandles('crypto:bitcoin', '7d')
+
+      expect(requests[0]?.url).toMatch(/^https:\/\/proxy\.test\/cg\/coins\/bitcoin\/ohlc\?/)
+    })
+
+    it.each(['stock:aapl', 'crypto:Bitcoin', 'not-an-asset'])(
+      'returns UNSUPPORTED_ASSET for %s without making a request',
+      async (assetId) => {
+        const { http, requests } = fakeHttp(ok([]))
+        const provider = createCoinGeckoProvider({ http })
+
+        expect(await provider.getCandles(assetId, '7d')).toEqual({
+          ok: false,
+          error: { kind: 'UNSUPPORTED_ASSET', assetId },
+        })
+        expect(requests).toHaveLength(0)
+      },
+    )
+
+    it('translates a 404 to UNSUPPORTED_ASSET', async () => {
+      const { http } = fakeHttp(err({ kind: 'CLIENT_ERROR', status: 404 }))
+      const provider = createCoinGeckoProvider({ http })
+
+      expect(await provider.getCandles('crypto:bitcoin', '7d')).toEqual({
+        ok: false,
+        error: { kind: 'UNSUPPORTED_ASSET', assetId: 'crypto:bitcoin' },
+      })
+    })
+
+    it.each([
+      [
+        'rate limit',
+        { kind: 'RATE_LIMIT', retryAfterMs: 2_000 },
+        { kind: 'RATE_LIMIT', retryAfterMs: 2_000 },
+      ],
+      ['server error', { kind: 'SERVER_ERROR', status: 503 }, { kind: 'PROVIDER_UNAVAILABLE' }],
+      ['network error', { kind: 'NETWORK_ERROR' }, { kind: 'NETWORK_ERROR' }],
+      ['timeout', { kind: 'TIMEOUT' }, { kind: 'TIMEOUT' }],
+    ] as const)('preserves the %s failure', async (_label, httpError, expected) => {
+      const { http } = fakeHttp(err(httpError))
+      const provider = createCoinGeckoProvider({ http })
+
+      expect(await provider.getCandles('crypto:bitcoin', '7d')).toEqual({
+        ok: false,
+        error: expected,
+      })
+    })
+
+    it('returns INVALID_RESPONSE for malformed OHLC data', async () => {
+      const { http } = fakeHttp(ok([[1, 1, 0, 2, 1]]))
+      const provider = createCoinGeckoProvider({ http })
+
+      expect(await provider.getCandles('crypto:bitcoin', '7d')).toEqual({
+        ok: false,
+        error: { kind: 'INVALID_RESPONSE' },
+      })
+    })
+
+    it('rejects cancellation instead of converting it to a data error', async () => {
+      const http: HttpClient = {
+        getJson: () => Promise.reject(new DOMException('aborted', 'AbortError')),
+      }
+      const provider = createCoinGeckoProvider({ http })
+
+      await expect(provider.getCandles('crypto:bitcoin', '7d')).rejects.toMatchObject({
         name: 'AbortError',
       })
     })

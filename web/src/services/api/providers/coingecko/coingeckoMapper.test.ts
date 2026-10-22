@@ -4,6 +4,7 @@ import { answersExactly } from '@/application/market/quotes-result'
 import {
   mapCoinGeckoListing,
   mapCoinGeckoMarkets,
+  mapCoinGeckoOhlc,
 } from '@/services/api/providers/coingecko/coingeckoMapper'
 import { COINGECKO_MARKETS_FIXTURE } from '@/services/api/providers/coingecko/coingeckoMarkets.fixture'
 
@@ -293,5 +294,64 @@ describe('coin logo mapping', () => {
     expect(result.ok && result.value.quotes.every((quote) => quote.imageUrl !== undefined)).toBe(
       true,
     )
+  })
+})
+
+describe('mapCoinGeckoOhlc', () => {
+  it('maps OHLC rows, preserves decimal prices, and sorts by timestamp', () => {
+    const result = mapCoinGeckoOhlc([
+      [2_000, 2.25, 3.5, 1.75, 3],
+      [1_000, 1, 2, 0.5, 1.5],
+    ])
+
+    expect(result.ok).toBe(true)
+    expect(
+      result.ok &&
+        result.value.map((candle) => ({
+          time: candle.time,
+          open: candle.open.toString(),
+          high: candle.high.toString(),
+          low: candle.low.toString(),
+          close: candle.close.toString(),
+        })),
+    ).toEqual([
+      { time: 1_000, open: '1', high: '2', low: '0.5', close: '1.5' },
+      { time: 2_000, open: '2.25', high: '3.5', low: '1.75', close: '3' },
+    ])
+  })
+
+  it('accepts an empty OHLC response', () => {
+    expect(mapCoinGeckoOhlc([])).toEqual({ ok: true, value: [] })
+  })
+
+  it.each([
+    ['non-array body', { rows: [] }],
+    ['null body', null],
+    ['row with missing fields', [[1, 2, 3, 4]]],
+    ['row with extra fields', [[1, 2, 3, 4, 5, 6]]],
+    ['non-numeric field', [[1, 2, '3', 0, 2]]],
+    ['negative timestamp', [[-1, 1, 2, 0, 1]]],
+    ['fractional timestamp', [[1.5, 1, 2, 0, 1]]],
+    ['negative price', [[1, -1, 2, 0, 1]]],
+    ['price above supported range', [[1, 1e12, 1e12, 0, 1e12]]],
+    ['high below low', [[1, 2, 1, 3, 2]]],
+    ['high below open', [[1, 3, 2, 1, 2]]],
+    ['high below close', [[1, 1, 2, 0, 3]]],
+    ['low above open', [[1, 1, 3, 2, 2]]],
+    ['low above close', [[1, 3, 4, 2, 1]]],
+  ])('rejects the full response when it has a %s', (_label, body) => {
+    expect(mapCoinGeckoOhlc(body)).toEqual({
+      ok: false,
+      error: { kind: 'INVALID_RESPONSE' },
+    })
+  })
+
+  it('rejects duplicate timestamps instead of returning ambiguous candles', () => {
+    expect(
+      mapCoinGeckoOhlc([
+        [1_000, 1, 2, 0, 1],
+        [1_000, 1, 2, 0, 1],
+      ]),
+    ).toEqual({ ok: false, error: { kind: 'INVALID_RESPONSE' } })
   })
 })

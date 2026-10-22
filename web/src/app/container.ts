@@ -13,7 +13,11 @@ import type { LedgerRepositoryError, LedgerSnapshot } from '@/application/ledger
 import type { PlaceOrder } from '@/application/ledger/placeOrder'
 import type { DegradedReason } from '@/services/storage/ledger/resolveLedgerRepository'
 import type { Result } from '@/domain/shared/result'
-import type { MarketDataProvider, MarketListingProvider } from '@/application/market/ports'
+import type {
+  MarketCandleProvider,
+  MarketDataProvider,
+  MarketListingProvider,
+} from '@/application/market/ports'
 import type { KeyValueStorage } from '@/services/storage/jsonStorage'
 
 export interface LedgerServices {
@@ -79,3 +83,4 @@ const coingecko = createCoinGeckoProvider({ http: httpClient })
 
 export const marketDataProvider: MarketDataProvider = coingecko
 export const marketListingProvider: MarketListingProvider = coingecko
+export const marketCandleProvider: MarketCandleProvider = coingecko

@@ -1,16 +1,19 @@
 import { z } from 'zod'
 
 import { failAll } from '@/application/market/quotes-result'
+import { createCandle } from '@/domain/market/candle'
 import { makeAssetId } from '@/domain/market/asset'
 import { Price } from '@/domain/shared/price'
 import { err, ok } from '@/domain/shared/result'
 import {
   CoinGeckoItemIdentitySchema,
   CoinGeckoMarketItemSchema,
+  CoinGeckoOhlcSchema,
 } from '@/services/api/providers/coingecko/coingeckoSchema'
 
 import type { MarketDataError } from '@/application/market/errors'
 import type { MarketListing, QuoteFailure, QuotesResult } from '@/application/market/quotes-result'
+import type { Candle } from '@/domain/market/candle'
 import type { MarketQuote } from '@/domain/market/quote'
 import type { Result } from '@/domain/shared/result'
 
@@ -145,4 +148,40 @@ export function mapCoinGeckoListing(body: unknown): Result<MarketListing, Market
   if (quotes.length === 0) return err(INVALID_RESPONSE)
 
   return ok({ quotes, skipped })
+}
+
+export function mapCoinGeckoOhlc(body: unknown): Result<readonly Candle[], MarketDataError> {
+  const parsed = CoinGeckoOhlcSchema.safeParse(body)
+  if (!parsed.success) return err(INVALID_RESPONSE)
+
+  const candles: Candle[] = []
+
+  for (const [time, open, high, low, close] of parsed.data) {
+    const values = [open, high, low, close].map((value) => Price.fromMarket(value))
+    if (values.some((value) => !value.ok)) return err(INVALID_RESPONSE)
+
+    const [openPrice, highPrice, lowPrice, closePrice] = values
+    if (!openPrice?.ok || !highPrice?.ok || !lowPrice?.ok || !closePrice?.ok) {
+      return err(INVALID_RESPONSE)
+    }
+
+    const candle = createCandle({
+      time,
+      open: openPrice.value,
+      high: highPrice.value,
+      low: lowPrice.value,
+      close: closePrice.value,
+    })
+    if (!candle.ok) return err(INVALID_RESPONSE)
+
+    candles.push(candle.value)
+  }
+
+  candles.sort((left, right) => left.time - right.time)
+
+  for (let index = 1; index < candles.length; index += 1) {
+    if (candles[index]?.time === candles[index - 1]?.time) return err(INVALID_RESPONSE)
+  }
+
+  return ok(candles)
 }

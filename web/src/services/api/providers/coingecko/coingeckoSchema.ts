@@ -25,3 +25,13 @@ export const CoinGeckoMarketItemSchema = z.object({
 
 /** Para identificar un elemento aunque el resto de sus campos sea inválido. */
 export const CoinGeckoItemIdentitySchema = z.object({ id: z.string().min(1) })
+
+export const CoinGeckoOhlcRowSchema = z.tuple([
+  z.number().int().nonnegative(),
+  z.number(),
+  z.number(),
+  z.number(),
+  z.number(),
+])
+
+export const CoinGeckoOhlcSchema = z.array(CoinGeckoOhlcRowSchema)

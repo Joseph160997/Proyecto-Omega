@@ -1,5 +1,7 @@
 import type { MarketDataError } from '@/application/market/errors'
 import type { MarketListing, QuotesResult } from '@/application/market/quotes-result'
+import type { Candle } from '@/domain/market/candle'
+import type { CandleTimeframe } from '@/domain/market/candleTimeframe'
 import type { Result } from '@/domain/shared/result'
 
 export interface MarketDataRequestOptions {
@@ -35,4 +37,12 @@ export interface MarketListingProvider {
     limit: number,
     options?: MarketDataRequestOptions,
   ): Promise<Result<MarketListing, MarketDataError>>
+}
+
+export interface MarketCandleProvider {
+  getCandles(
+    assetId: string,
+    timeframe: CandleTimeframe,
+    options?: MarketDataRequestOptions,
+  ): Promise<Result<readonly Candle[], MarketDataError>>
 }
